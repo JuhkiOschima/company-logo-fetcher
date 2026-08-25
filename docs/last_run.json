@@ -1,24 +1,5 @@
 {
- "at": "2026-08-25 17:05 UTC",
- "run_id": "32875797435",
- "results": [
-  {
-   "name": "村田製作所",
-   "ok": true,
-   "domain": "",
-   "used_removebg": false,
-   "from_cache": false,
-   "error": "",
-   "deleted": true
-  },
-  {
-   "name": "dアカウント",
-   "ok": true,
-   "domain": "",
-   "used_removebg": false,
-   "from_cache": false,
-   "error": "",
-   "deleted": true
-  }
- ]
+ "at": "2026-08-25 17:15 UTC",
+ "run_id": "32876846573",
+ "results": []
 }
