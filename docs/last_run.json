@@ -1,14 +1,14 @@
 {
- "at": "2026-08-25 14:29 UTC",
- "run_id": "32859786574",
+ "at": "2026-08-25 14:30 UTC",
+ "run_id": "32859879765",
  "results": [
   {
-   "name": "日本郵政",
-   "ok": true,
-   "domain": "prtimes.jp",
-   "used_removebg": true,
+   "name": "信越化学工業",
+   "ok": false,
+   "domain": "",
+   "used_removebg": false,
    "from_cache": false,
-   "error": "",
+   "error": "RemoveBgError: remove.bg がエラーを返しました (HTTP 400): Invalid file type",
    "deleted": false
   }
  ]
