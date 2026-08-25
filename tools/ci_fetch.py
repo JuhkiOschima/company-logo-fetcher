@@ -46,14 +46,15 @@ LOGOS = DOCS / "logos"
 FETCH_LIMIT = 20
 
 
-def build_config() -> Config:
+def build_config(require: bool = True) -> Config:
     cfg = Config()
     cfg.root = ROOT
     cfg.search.api_key = os.environ.get("SERPAPI_KEY", "")
     cfg.removebg.api_key = os.environ.get("REMOVEBG_KEY", "")
     cfg.output.dir = LOGOS
     cfg.cache_dir = ROOT / "ci-cache"
-    cfg.require_keys()
+    if require:
+        cfg.require_keys()
     return cfg
 
 
@@ -205,5 +206,23 @@ def main() -> int:
     return 0
 
 
+def rebuild_only() -> int:
+    """PNGの合併結果から index.json と logos.pptx だけを作り直す。
+
+    push競合時のリカバリー用(マージ後に呼ばれる)。quota.json や last_run.json は
+    自分の実行の値を保つため触らない。APIキーも不要。
+    """
+    cfg = build_config(require=False)
+    LOGOS.mkdir(parents=True, exist_ok=True)
+    rebuild_index(cfg, set())
+    entries = [(p.stem, p) for p in sorted(LOGOS.glob("*.png"))]
+    if entries:
+        pptx_export.export(entries, DOCS / "logos.pptx")
+    print(f"index/pptx を再生成しました(ストック {len(entries)}社)")
+    return 0
+
+
 if __name__ == "__main__":
+    if "--rebuild-only" in sys.argv:
+        raise SystemExit(rebuild_only())
     raise SystemExit(main())

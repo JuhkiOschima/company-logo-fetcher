@@ -66,11 +66,23 @@ jobs:
             exit 0
           fi
           git commit -m "$MSG"
-          # 競合しても取得済みの成果を捨てないよう、push を粘り強く試みる
-          for i in 1 2 3; do
+          # push が拒否されたら(他の実行やレプリケーション遅延でリモートが先行):
+          #   1. リモートをマージ(再生成ファイルの衝突は一旦こちらを採用)
+          #   2. PNG の合併結果から index/pptx を作り直して積み増す
+          # これにより、競合で取得結果(API消費分)が失われることはない
+          for i in 1 2 3 4 5; do
             if git push; then
               exit 0
             fi
-            git pull --rebase || { git rebase --abort; git pull --no-edit -X ours; }
+            echo "push できませんでした(${i}回目)。リモートの先行分を取り込みます"
+            git fetch origin
+            if ! git merge -X ours --no-edit origin/main; then
+              git checkout --ours -- . || true
+              git add -A
+              git -c core.editor=true merge --continue || true
+            fi
+            python tools/ci_fetch.py --rebuild-only
+            git add docs
+            git commit -m "$MSG (競合を解消して再生成)" --allow-empty
           done
           git push

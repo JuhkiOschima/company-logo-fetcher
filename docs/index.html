@@ -21,7 +21,7 @@
   main { max-width: 1200px; margin: 0 auto; padding: 18px 20px 40px; }
   section { background: #fff; border: 1px solid var(--line); border-radius: 10px;
             padding: 16px 18px; margin-bottom: 18px; }
-  h2 { font-size: 16px; margin: 0 0 10px; }
+  h2 { font-size: 20px; margin: 0 0 10px; }
   .hint { color: var(--sub); font-size: 13px; }
   .note { color: var(--sub); font-size: 12px; }
   .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
@@ -29,6 +29,7 @@
                  border: 1px solid var(--line); background: #fff; color: var(--text);
                  text-decoration: none; display: inline-block; }
   .btn.primary, button.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+  button.danger { background: #b00020; border-color: #b00020; color: #fff; }
   button:disabled { opacity: .5; cursor: default; }
   textarea { width: 100%; min-height: 76px; font: inherit; padding: 10px;
              border: 1px solid var(--line); border-radius: 8px; resize: vertical; }
@@ -39,7 +40,10 @@
   .grid { display: grid; gap: 14px;
           grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
   .card { background: #fff; border: 1px solid var(--line); border-radius: 10px;
-          padding: 12px; }
+          padding: 12px; position: relative; }
+  .card input.selbox { position: absolute; right: 10px; bottom: 14px;
+                       width: 17px; height: 17px; cursor: pointer; }
+  .card .row { padding-right: 28px; }
   .thumb { height: 120px; display: flex; align-items: center; justify-content: center;
            border-radius: 6px; border: 1px solid #eee; cursor: pointer;
            background: repeating-conic-gradient(#eceff3 0% 25%, #fff 0% 50%) 0 0/20px 20px; }
@@ -48,11 +52,8 @@
   .card .meta { color: var(--sub); font-size: 12px; margin-bottom: 8px; }
   .card .row { gap: 6px; }
   .card button, .card .btn { padding: 5px 12px; font-size: 13px; }
-  .card label.sel { font-size: 13px; color: var(--sub); display: flex; gap: 4px;
-                    align-items: center; cursor: pointer; margin-right: 2px; }
   #stockEmpty { color: var(--sub); padding: 8px 2px; display: none; }
   #fetchStatus { margin-top: 10px; font-size: 14px; }
-  #lastRun { font-size: 13px; line-height: 1.9; margin-top: 8px; }
   .ok { color: #107c10; } .ng { color: #b00020; } .working { color: var(--blue); }
   #tokenBox { border: 1px solid var(--line); border-radius: 8px; background: #f8fafc;
               padding: 12px 14px; margin-top: 10px; font-size: 13px; line-height: 1.8; }
@@ -67,7 +68,7 @@
 </header>
 <main>
   <section>
-    <h2>① ロゴを取得する</h2>
+    <h2>ロゴを取得する</h2>
     <div class="hint">
       企業名もしくは企業リストを記入してください。<br>
       ※最大20社まで出力が可能です<br>
@@ -98,34 +99,32 @@
       </div>
     </div>
     <div id="fetchStatus"></div>
-    <div id="lastRun"></div>
   </section>
 
   <section id="todaySection" style="display:none">
     <div class="row" style="justify-content: space-between; margin: 0 0 4px;">
-      <h2 style="margin:0">② 今回の出力結果(<span id="todayCount">0</span>社)</h2>
-      <button id="todayPptx">PPTXに出力</button>
+      <h2 style="margin:0">今回の出力結果(<span id="todayCount">0</span>社)</h2>
+      <button id="todayPptx" class="primary">PPTXに出力</button>
     </div>
     <div class="note" style="margin-bottom:10px">
-      ※PPTXに出力することで、一つずつコピー&ペーストをする手間が省けます。
-      チェックを入れたロゴだけを出力できます(チェックなしなら全部)。<br>
-      ※カードの「コピー」→ PowerPoint に Ctrl+V で透過のまま貼り付けられます。
+      ※個別:各ロゴの「コピー」ボタンを押下<br>
+      ※まとめて:ロゴにチェックし、「PPTXに出力」ボタンを押下
     </div>
     <div class="grid" id="todayGrid"></div>
   </section>
 
   <section>
     <div class="row" style="justify-content: space-between; margin: 0 0 4px;">
-      <h2 style="margin:0">③ ストック(<span id="count">0</span>社)</h2>
+      <h2 style="margin:0">ストック(<span id="count">0</span>社)</h2>
       <span class="row" style="gap:6px">
-        <button id="stockPptx">PPTXに出力</button>
-        <button id="stockDelete">ストックから削除</button>
+        <button id="stockPptx" class="primary">PPTXに出力</button>
+        <button id="stockDelete" class="danger">ストックから削除</button>
         <input id="searchBox" type="search" placeholder="🔍 企業名で絞り込み">
       </span>
     </div>
     <div class="note" style="margin-bottom:10px">
-      ※PPTXに出力することで、一つずつコピー&ペーストをする手間が省けます。チェックを入れたロゴが対象です。<br>
-      ※カードの「コピー」→ PowerPoint に Ctrl+V で透過のまま貼り付けられます。うまくいかない場合は画像を右クリック→「画像をコピー」。
+      ※個別:各ロゴの「コピー」ボタンを押下<br>
+      ※まとめて:ロゴにチェックし、「PPTXに出力」ボタンを押下
     </div>
     <div class="grid" id="grid"></div>
     <div id="stockEmpty"></div>
@@ -180,11 +179,11 @@ function makeCard(item, selSet) {
   meta.textContent = (item.domain ? "取得元: " + item.domain + " / " : "") + item.date;
   card.appendChild(meta);
   const row = document.createElement("div"); row.className = "row";
-  const sel = document.createElement("label"); sel.className = "sel";
   const cb = document.createElement("input"); cb.type = "checkbox";
+  cb.className = "selbox"; cb.title = "PPTX出力・削除の対象に選択";
   cb.checked = selSet.has(item.name);
   cb.onchange = () => { cb.checked ? selSet.add(item.name) : selSet.delete(item.name); };
-  sel.append(cb, "選択"); row.appendChild(sel);
+  card.appendChild(cb);
   if (canJsCopy) {
     const cp = document.createElement("button"); cp.className = "primary"; cp.textContent = "コピー";
     cp.onclick = () => copyPng(item, cp); row.appendChild(cp);
@@ -214,7 +213,7 @@ function render() {
   $("count").textContent = String(logos.length);
   $("stockEmpty").textContent = loadFailed
     ? "一覧の読み込みに失敗しました。ページをリロードしてください。"
-    : "一致する企業がありません。「① ロゴを取得する」から追加できます。";
+    : "一致する企業がありません。「ロゴを取得する」から追加できます。";
   $("stockEmpty").style.display = shown ? "none" : "block";
   renderToday();
 }
@@ -472,7 +471,7 @@ async function findNewRunId(beforeIds) {
         if (mine) return mine;
       }
     } catch (e) { /* 一時的な通信エラーは次の周回で拾う */ }
-    setFetchStatus("実行待ち…(GitHub側でキュー中)", "working");
+    setFetchStatus("実行の登録を確認しています…", "working");
   }
   return null;
 }
@@ -487,8 +486,9 @@ async function waitForRunById(runId) {
       if (!res.ok) continue;
       const run = await res.json();
       if (run.status === "completed") return run;
+      // どの実行も開始前に数秒〜数十秒 queued 状態を通る(異常ではない)
       setFetchStatus(run.status === "queued"
-        ? "順番待ち…(他の人の取得が実行中です)" : "取得を実行中…", "working");
+        ? "実行の開始を待っています…" : "取得を実行中…", "working");
     } catch (e) { /* 一時的な通信エラーは次の周回で拾う */ }
   }
   return null;
@@ -525,7 +525,7 @@ async function runFetch(inputs, confirmMsg) {
     const run = await waitForRunById(runId);
     if (!run) { setFetchStatus("完了を確認できませんでした。しばらくしてリロードしてください。", "ng"); return; }
     if (run.conclusion !== "success") {
-      setFetchStatus(`実行が失敗しました(${run.conclusion})。`, "ng");
+      setFetchStatus(`実行が失敗しました(${run.conclusion})。もう一度お試しください。`, "ng");
       return;
     }
     const lr = await waitForPages(runId);
@@ -554,24 +554,6 @@ async function retryLogo(name) {
 
 // --- データ読み込み ---
 
-function renderLastRun(lr) {
-  const box = $("lastRun"); box.textContent = "";
-  if (!lr || !lr.results || !lr.results.length) return;
-  const head = document.createElement("div"); head.className = "hint";
-  head.textContent = `直近の取得(${lr.at}):`;
-  box.appendChild(head);
-  for (const r of lr.results.slice(0, 20)) {
-    const line = document.createElement("div");
-    line.className = r.ok ? "ok" : "ng";
-    if (r.deleted) {
-      line.textContent = `${r.name}: ${r.ok ? "ストックから削除しました" : r.error}`;
-    } else {
-      line.textContent = `${r.name}: ${r.ok ? "成功" + (r.domain ? `(${r.domain})` : "") : "失敗 - " + r.error}`;
-    }
-    box.appendChild(line);
-  }
-}
-
 async function reloadData() {
   try {
     logos = await loadJson("index.json");
@@ -590,7 +572,6 @@ async function reloadData() {
     $("quota").textContent = parts.length
       ? `今月のクレジット残数(API): ${parts.join(" | ")}` : "";
   } catch (e) { /* 表示できなくても閲覧には影響しない */ }
-  try { renderLastRun(await loadJson("last_run.json")); } catch (e) { /* まだ履歴がない */ }
 }
 
 async function init() {
