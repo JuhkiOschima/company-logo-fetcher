@@ -1,45 +1,4 @@
 {
- "at": "2026-08-25 10:25 UTC",
- "results": [
-  {
-   "name": "KDDI",
-   "ok": true,
-   "domain": "kddi.com",
-   "used_removebg": false,
-   "from_cache": true,
-   "error": ""
-  },
-  {
-   "name": "楽天グループ",
-   "ok": true,
-   "domain": "corp.rakuten.co.jp",
-   "used_removebg": false,
-   "from_cache": true,
-   "error": ""
-  },
-  {
-   "name": "資生堂",
-   "ok": true,
-   "domain": "ja.wikipedia.org",
-   "used_removebg": false,
-   "from_cache": true,
-   "error": ""
-  },
-  {
-   "name": "ダイキン工業",
-   "ok": true,
-   "domain": "daikin.co.jp",
-   "used_removebg": false,
-   "from_cache": true,
-   "error": ""
-  },
-  {
-   "name": "セブン&アイ・ホールディングス",
-   "ok": true,
-   "domain": "7andi.com",
-   "used_removebg": false,
-   "from_cache": true,
-   "error": ""
-  }
- ]
+ "at": "2026-08-25 10:31 UTC",
+ "results": []
 }
