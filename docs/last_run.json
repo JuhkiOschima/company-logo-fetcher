@@ -1,82 +1,11 @@
 {
- "at": "2026-08-25 11:11 UTC",
+ "at": "2026-08-25 11:12 UTC",
+ "run_id": "32841085937",
  "results": [
-  {
-   "name": "キーエンス",
-   "ok": true,
-   "domain": "companydata.tsujigawa.com",
-   "used_removebg": false,
-   "from_cache": false,
-   "error": ""
-  },
-  {
-   "name": "村田製作所",
-   "ok": true,
-   "domain": "corporate.murata.com",
-   "used_removebg": true,
-   "from_cache": false,
-   "error": ""
-  },
-  {
-   "name": "信越化学工業",
-   "ok": true,
-   "domain": "semi-journal.jp",
-   "used_removebg": true,
-   "from_cache": false,
-   "error": ""
-  },
-  {
-   "name": "伊藤忠商事",
-   "ok": true,
-   "domain": "itochu.co.jp",
-   "used_removebg": true,
-   "from_cache": false,
-   "error": ""
-  },
-  {
-   "name": "日本郵政",
-   "ok": true,
-   "domain": "prtimes.jp",
-   "used_removebg": true,
-   "from_cache": false,
-   "error": ""
-  },
-  {
-   "name": "コマツ",
-   "ok": true,
-   "domain": "komatsu.jp",
-   "used_removebg": false,
-   "from_cache": false,
-   "error": ""
-  },
-  {
-   "name": "味の素",
-   "ok": true,
-   "domain": "story.ajinomoto.co.jp",
-   "used_removebg": true,
-   "from_cache": false,
-   "error": ""
-  },
-  {
-   "name": "東京ガス",
-   "ok": true,
-   "domain": "creww.me",
-   "used_removebg": false,
-   "from_cache": false,
-   "error": ""
-  },
-  {
-   "name": "リクルートホールディングス",
-   "ok": true,
-   "domain": "recruit-holdings.com",
-   "used_removebg": true,
-   "from_cache": false,
-   "error": ""
-  },
   {
    "name": "任天堂",
    "ok": true,
-   "domain": "ja.wikipedia.org",
+   "domain": "peacsmind.com",
    "used_removebg": true,
    "from_cache": false,
    "error": ""
