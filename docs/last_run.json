@@ -1,12 +1,44 @@
 {
- "at": "2026-08-25 10:16 UTC",
+ "at": "2026-08-25 10:19 UTC",
  "results": [
   {
-   "name": "パナソニック",
+   "name": "KDDI",
    "ok": true,
-   "domain": "sozainavi.com",
+   "domain": "kddi.com",
    "used_removebg": false,
-   "from_cache": false,
+   "from_cache": true,
+   "error": ""
+  },
+  {
+   "name": "楽天グループ",
+   "ok": true,
+   "domain": "corp.rakuten.co.jp",
+   "used_removebg": false,
+   "from_cache": true,
+   "error": ""
+  },
+  {
+   "name": "資生堂",
+   "ok": true,
+   "domain": "ja.wikipedia.org",
+   "used_removebg": false,
+   "from_cache": true,
+   "error": ""
+  },
+  {
+   "name": "ダイキン工業",
+   "ok": true,
+   "domain": "daikin.co.jp",
+   "used_removebg": false,
+   "from_cache": true,
+   "error": ""
+  },
+  {
+   "name": "セブン&アイ・ホールディングス",
+   "ok": true,
+   "domain": "7andi.com",
+   "used_removebg": false,
+   "from_cache": true,
    "error": ""
   }
  ]
