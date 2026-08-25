@@ -1,9 +1,21 @@
 [
  {
+  "name": "野村ホールディングス",
+  "domain": "am-expo.jp",
+  "date": "2026-08-25",
+  "v": "ce631222"
+ },
+ {
   "name": "資生堂",
   "domain": "ja.wikipedia.org",
   "date": "2026-08-25",
   "v": "3a83dcce"
+ },
+ {
+  "name": "花王",
+  "domain": "kao.com",
+  "date": "2026-08-25",
+  "v": "9a3c24df"
  },
  {
   "name": "楽天グループ",
@@ -24,6 +36,12 @@
   "v": "4ccbfcfa"
  },
  {
+  "name": "日立製作所",
+  "domain": "netdenjd.com",
+  "date": "2026-08-25",
+  "v": "713c27d0"
+ },
+ {
   "name": "日本郵政",
   "domain": "prtimes.jp",
   "date": "2026-08-25",
@@ -34,6 +52,12 @@
   "domain": "ja.wikipedia.org",
   "date": "2026-08-25",
   "v": "add68af1"
+ },
+ {
+  "name": "大和ハウス工業",
+  "domain": "ja.wikipedia.org",
+  "date": "2026-08-25",
+  "v": "ab898f11"
  },
  {
   "name": "味の素",
@@ -60,6 +84,12 @@
   "v": "40a78e39"
  },
  {
+  "name": "三菱電機",
+  "domain": "kaden.watch.impress.co.jp",
+  "date": "2026-08-25",
+  "v": "6ce86ead"
+ },
+ {
   "name": "三井住友銀行",
   "domain": "ja.wikipedia.org",
   "date": "2026-08-25",
@@ -70,6 +100,12 @@
   "domain": "recruit-holdings.com",
   "date": "2026-08-25",
   "v": "794b5bfc"
+ },
+ {
+  "name": "ホンダ",
+  "domain": "honda.co.jp",
+  "date": "2026-08-25",
+  "v": "e2c24504"
  },
  {
   "name": "ファーストリテイリング",
@@ -108,6 +144,12 @@
   "v": "6e634635"
  },
  {
+  "name": "セコム",
+  "domain": "secom.co.jp",
+  "date": "2026-08-25",
+  "v": "3ea09851"
+ },
+ {
   "name": "コマツ",
   "domain": "komatsu.jp",
   "date": "2026-08-25",
@@ -126,6 +168,18 @@
   "v": "4fd2c891"
  },
  {
+  "name": "オリエンタルランド",
+  "domain": "internshipguide.jp",
+  "date": "2026-08-25",
+  "v": "7213dd55"
+ },
+ {
+  "name": "アサヒグループホールディングス",
+  "domain": "prtimes.jp",
+  "date": "2026-08-25",
+  "v": "af9f1f49"
+ },
+ {
   "name": "NTTデータ",
   "domain": "x.com",
   "date": "2026-08-25",
@@ -142,5 +196,11 @@
   "domain": "kddi.com",
   "date": "2026-08-25",
   "v": "abca1458"
+ },
+ {
+  "name": "JR東日本",
+  "domain": "jrefm.co.jp",
+  "date": "2026-08-25",
+  "v": "8c268ae8"
  }
 ]

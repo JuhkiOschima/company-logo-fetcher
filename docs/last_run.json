@@ -1,5 +1,96 @@
 {
- "at": "2026-08-25 12:00 UTC",
- "run_id": "32845224592",
- "results": []
+ "at": "2026-08-25 12:06 UTC",
+ "run_id": "32845602621",
+ "results": [
+  {
+   "name": "ホンダ",
+   "ok": true,
+   "domain": "honda.co.jp",
+   "used_removebg": true,
+   "from_cache": false,
+   "error": "",
+   "deleted": false
+  },
+  {
+   "name": "日立製作所",
+   "ok": true,
+   "domain": "netdenjd.com",
+   "used_removebg": true,
+   "from_cache": false,
+   "error": "",
+   "deleted": false
+  },
+  {
+   "name": "三菱電機",
+   "ok": true,
+   "domain": "kaden.watch.impress.co.jp",
+   "used_removebg": true,
+   "from_cache": false,
+   "error": "",
+   "deleted": false
+  },
+  {
+   "name": "花王",
+   "ok": true,
+   "domain": "kao.com",
+   "used_removebg": true,
+   "from_cache": false,
+   "error": "",
+   "deleted": false
+  },
+  {
+   "name": "アサヒグループホールディングス",
+   "ok": true,
+   "domain": "prtimes.jp",
+   "used_removebg": true,
+   "from_cache": false,
+   "error": "",
+   "deleted": false
+  },
+  {
+   "name": "JR東日本",
+   "ok": true,
+   "domain": "jrefm.co.jp",
+   "used_removebg": true,
+   "from_cache": false,
+   "error": "",
+   "deleted": false
+  },
+  {
+   "name": "大和ハウス工業",
+   "ok": true,
+   "domain": "ja.wikipedia.org",
+   "used_removebg": false,
+   "from_cache": false,
+   "error": "",
+   "deleted": false
+  },
+  {
+   "name": "セコム",
+   "ok": true,
+   "domain": "secom.co.jp",
+   "used_removebg": true,
+   "from_cache": false,
+   "error": "",
+   "deleted": false
+  },
+  {
+   "name": "野村ホールディングス",
+   "ok": true,
+   "domain": "am-expo.jp",
+   "used_removebg": true,
+   "from_cache": false,
+   "error": "",
+   "deleted": false
+  },
+  {
+   "name": "オリエンタルランド",
+   "ok": true,
+   "domain": "internshipguide.jp",
+   "used_removebg": true,
+   "from_cache": false,
+   "error": "",
+   "deleted": false
+  }
+ ]
 }
