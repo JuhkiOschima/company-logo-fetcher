@@ -1,15 +1,5 @@
 {
- "at": "2026-08-25 12:15 UTC",
- "run_id": "32846164704",
- "results": [
-  {
-   "name": "日本郵政",
-   "ok": true,
-   "domain": "japanpost.jp",
-   "used_removebg": true,
-   "from_cache": false,
-   "error": "",
-   "deleted": false
-  }
- ]
+ "at": "2026-08-25 14:16 UTC",
+ "run_id": "32858441197",
+ "results": []
 }
