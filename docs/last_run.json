@@ -1,12 +1,12 @@
 {
- "at": "2026-08-25 11:13 UTC",
- "run_id": "32841200635",
+ "at": "2026-08-25 11:14 UTC",
+ "run_id": "32841277817",
  "results": [
   {
-   "name": "任天堂",
+   "name": "味の素",
    "ok": true,
-   "domain": "ja.wikipedia.org",
-   "used_removebg": false,
+   "domain": "story.ajinomoto.co.jp",
+   "used_removebg": true,
    "from_cache": false,
    "error": ""
   }
