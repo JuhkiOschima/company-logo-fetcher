@@ -1,5 +1,15 @@
 {
- "at": "2026-08-25 14:16 UTC",
- "run_id": "32858441197",
- "results": []
+ "at": "2026-08-25 14:29 UTC",
+ "run_id": "32859786574",
+ "results": [
+  {
+   "name": "日本郵政",
+   "ok": true,
+   "domain": "prtimes.jp",
+   "used_removebg": true,
+   "from_cache": false,
+   "error": "",
+   "deleted": false
+  }
+ ]
 }
