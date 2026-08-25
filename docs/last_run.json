@@ -1,14 +1,5 @@
 {
- "at": "2026-08-25 11:17 UTC",
- "run_id": "32841512733",
- "results": [
-  {
-   "name": "味の素",
-   "ok": true,
-   "domain": "story.ajinomoto.co.jp",
-   "used_removebg": true,
-   "from_cache": false,
-   "error": ""
-  }
- ]
+ "at": "2026-08-25 12:00 UTC",
+ "run_id": "32845224592",
+ "results": []
 }
