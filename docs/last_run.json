@@ -1,15 +1,15 @@
 {
- "at": "2026-08-25 15:53 UTC",
- "run_id": "32868543746",
+ "at": "2026-08-25 16:05 UTC",
+ "run_id": "32869791103",
  "results": [
   {
-   "name": "信越化学工業",
-   "ok": false,
+   "name": "伊藤忠商事",
+   "ok": true,
    "domain": "",
    "used_removebg": false,
    "from_cache": false,
-   "error": "RemoveBgError: remove.bg がエラーを返しました (HTTP 400): Invalid file type",
-   "deleted": false
+   "error": "",
+   "deleted": true
   }
  ]
 }
