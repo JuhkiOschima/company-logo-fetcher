@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>企業ロゴストック</title>
+<style>
+  :root {
+    --blue: #005fb8; --text: #222; --sub: #666; --line: #d9d9d9; --bg: #f5f6f8;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Meiryo UI", "Yu Gothic UI", sans-serif;
+         font-size: 15px; color: var(--text); background: var(--bg); }
+  header { background: #fff; border-bottom: 1px solid var(--line);
+           padding: 14px 20px; display: flex; flex-wrap: wrap; gap: 10px;
+           align-items: baseline; }
+  header h1 { font-size: 20px; margin: 0 16px 0 0; }
+  #quota { color: var(--sub); font-size: 13px; }
+  #creditWarn { color: #b00020; font-size: 13px; font-weight: bold; display: none; }
+  main { max-width: 1200px; margin: 0 auto; padding: 18px 20px 40px; }
+  section { background: #fff; border: 1px solid var(--line); border-radius: 10px;
+            padding: 16px 18px; margin-bottom: 18px; }
+  h2 { font-size: 16px; margin: 0 0 10px; }
+  .hint { color: var(--sub); font-size: 13px; }
+  textarea { width: 100%; min-height: 84px; font: inherit; padding: 10px;
+             border: 1px solid var(--line); border-radius: 8px; resize: vertical; }
+  textarea:focus { outline: 2px solid var(--blue); border-color: transparent; }
+  .row { display: flex; gap: 10px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+  button, .btn { font: inherit; padding: 8px 18px; border-radius: 8px; cursor: pointer;
+                 border: 1px solid var(--line); background: #fff; color: var(--text);
+                 text-decoration: none; display: inline-block; }
+  button.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+  button:disabled { opacity: .5; cursor: default; }
+  #jobs { margin-top: 10px; font-size: 13px; line-height: 1.9; }
+  .st-running { color: var(--blue); } .st-done { color: #107c10; }
+  .st-failed { color: #b00020; } .st-waiting { color: var(--sub); }
+  #searchBox { width: 280px; font: inherit; padding: 8px 12px;
+               border: 1px solid var(--line); border-radius: 8px; }
+  #grid { display: grid; gap: 14px;
+          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 10px;
+          padding: 12px; }
+  .thumb { height: 120px; display: flex; align-items: center; justify-content: center;
+           border-radius: 6px; border: 1px solid #eee;
+           background: repeating-conic-gradient(#eceff3 0% 25%, #fff 0% 50%) 0 0/20px 20px; }
+  .thumb img { max-width: 92%; max-height: 100px; }
+  .card .name { font-weight: bold; margin: 8px 0 2px; }
+  .card .meta { color: var(--sub); font-size: 12px; margin-bottom: 8px; }
+  .card .row { margin-top: 0; gap: 6px; }
+  .card button, .card .btn { padding: 5px 12px; font-size: 13px; }
+  #empty { color: var(--sub); padding: 8px 2px; display: none; }
+  footer { color: var(--sub); font-size: 12px; margin-top: 8px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>企業ロゴストック</h1>
+  <span id="quota">残数を確認中…</span>
+  <span id="creditWarn">⚠ remove.bg のクレジット不足のため、新規の背景削除は停止中です</span>
+</header>
+<main>
+  <section>
+    <h2>① ロゴを取得する</h2>
+    <div class="hint">企業名を入力してください(改行・「、」・「/」・空白区切りの貼り付けOK。自動で分解されます)。
+      取得済みの企業はストックが使われ、APIを消費しません。</div>
+    <textarea id="names" placeholder="例: トヨタ自動車、ソニーグループ、NTTデータ"></textarea>
+    <div class="row">
+      <button class="primary" id="fetchBtn">ロゴを取得</button>
+      <span class="hint">新規1社あたり SerpAPI 1検索・remove.bg 最大1回を消費します(全員で共有の枠です)</span>
+    </div>
+    <div id="jobs"></div>
+  </section>
+
+  <section>
+    <div class="row" style="justify-content: space-between; margin: 0 0 12px;">
+      <h2 style="margin:0">② ストックから探す(<span id="count">0</span>社)</h2>
+      <input id="searchBox" type="search" placeholder="🔍 企業名で絞り込み">
+    </div>
+    <div id="grid"></div>
+    <div id="empty">一致する企業がありません。上の「① ロゴを取得する」から追加できます。</div>
+    <footer>
+      使い方: ロゴ画像を<strong>右クリック →「画像をコピー」</strong>して PowerPoint に Ctrl+V(透過のまま貼れます)。
+      まとめて欲しいときは <a href="/pptx">全ロゴ入り pptx をダウンロード</a>(1スライドに全社を並べた PowerPoint)。
+    </footer>
+  </section>
+</main>
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+let logos = [];
+const canJsCopy = window.isSecureContext && navigator.clipboard && window.ClipboardItem;
+
+function logoUrl(name) { return "/logo/" + encodeURIComponent(name) + ".png"; }
+
+function render() {
+  const word = $("searchBox").value.trim().toLowerCase();
+  const grid = $("grid");
+  grid.textContent = "";
+  let shown = 0;
+  for (const item of logos) {
+    if (word && !item.name.toLowerCase().includes(word)) continue;
+    shown++;
+    const card = document.createElement("div"); card.className = "card";
+    const thumb = document.createElement("div"); thumb.className = "thumb";
+    const img = document.createElement("img");
+    img.src = logoUrl(item.name); img.alt = item.name; img.title = "右クリック→「画像をコピー」でPPTに貼れます";
+    thumb.appendChild(img); card.appendChild(thumb);
+    const name = document.createElement("div"); name.className = "name";
+    name.textContent = item.name; card.appendChild(name);
+    const meta = document.createElement("div"); meta.className = "meta";
+    meta.textContent = (item.domain ? "取得元: " + item.domain + " / " : "") + item.date;
+    card.appendChild(meta);
+    const row = document.createElement("div"); row.className = "row";
+    if (canJsCopy) {
+      const cp = document.createElement("button"); cp.textContent = "コピー";
+      cp.onclick = () => copyPng(item.name, cp); row.appendChild(cp);
+    }
+    const dl = document.createElement("a"); dl.className = "btn"; dl.textContent = "ダウンロード";
+    dl.href = logoUrl(item.name); dl.download = item.name + ".png"; row.appendChild(dl);
+    const rt = document.createElement("button"); rt.textContent = "やり直し";
+    rt.title = "別の検索候補から取り直します(API枠を消費することがあります)";
+    rt.onclick = () => retry(item.name); row.appendChild(rt);
+    card.appendChild(row);
+    grid.appendChild(card);
+  }
+  $("count").textContent = String(logos.length);
+  $("empty").style.display = shown ? "none" : "block";
+}
+
+async function copyPng(name, btn) {
+  try {
+    const blob = await (await fetch(logoUrl(name))).blob();
+    await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+    btn.textContent = "コピーしました"; setTimeout(() => (btn.textContent = "コピー"), 1500);
+  } catch (e) {
+    alert("コピーに失敗しました。画像を右クリック→「画像をコピー」をお試しください。");
+  }
+}
+
+async function loadLogos() {
+  logos = await (await fetch("/api/logos")).json();
+  render();
+}
+
+async function loadQuota() {
+  try {
+    const q = await (await fetch("/api/quota")).json();
+    const parts = [];
+    if (q.serpapi) parts.push(`検索 残り ${q.serpapi.left}/${q.serpapi.total}`);
+    if (q.removebg) {
+      let t = `背景削除 残り無料 ${q.removebg.free}回`;
+      if (q.removebg.credits) t += `+クレジット${q.removebg.credits}`;
+      parts.push(t);
+    }
+    $("quota").textContent = parts.length ? "今月のAPI残数(全員共有): " + parts.join(" | ") : "";
+    $("creditWarn").style.display = q.credit_blocked ? "inline" : "none";
+  } catch (e) { /* 表示できなくても機能には影響しない */ }
+}
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+function renderJobs(jobs) {
+  const box = $("jobs"); box.textContent = "";
+  const labels = { waiting: "待機中", running: "取得中…", done: "完了", failed: "失敗" };
+  // 直近15分のものを新しい順に最大30件だけ表示する(全履歴を延々と並べない)
+  const now = Date.now() / 1000;
+  const entries = Object.entries(jobs)
+    .filter(([, j]) => now - (j.ts || now) < 900)
+    .sort((a, b) => (b[1].ts || 0) - (a[1].ts || 0))
+    .slice(0, 30);
+  for (const [name, j] of entries) {
+    const line = document.createElement("div");
+    line.className = "st-" + j.state;
+    let text = `${name}: ${labels[j.state] || j.state}`;
+    if (j.state === "done" && j.domain) text += `(取得元: ${j.domain})`;
+    if (j.state === "failed" && j.error) text += ` - ${j.error}`;
+    line.textContent = text;
+    box.appendChild(line);
+  }
+}
+
+let polling = false;
+let repoll = false;  // ポーリング中に来た再開要求を取りこぼさないための印
+async function poll() {
+  if (polling) { repoll = true; return; }
+  polling = true;
+  try {
+    do {
+      repoll = false;
+      let failures = 0;
+      for (;;) {
+        let st;
+        try {
+          st = await (await fetch("/api/status")).json();
+          failures = 0;
+        } catch (e) {
+          // 一時的な通信エラーでポーリングを止めない(連続5回で諦める)
+          if (++failures >= 5) break;
+          await sleep(2000);
+          continue;
+        }
+        renderJobs(st.jobs);
+        $("creditWarn").style.display = st.credit_blocked ? "inline" : "none";
+        if (!st.busy) break;
+        await sleep(1500);
+      }
+      await loadLogos().catch(() => {});
+      await loadQuota();
+    } while (repoll);  // 完了処理の最中に新しい依頼が来ていたら、もう一周する
+  } finally { polling = false; }
+}
+
+$("fetchBtn").onclick = async () => {
+  const text = $("names").value;
+  if (!text.trim()) return;
+  $("fetchBtn").disabled = true;
+  try {
+    const res = await (await fetch("/api/fetch", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    })).json();
+    if (res.error) { alert(res.error); return; }  // 上限超過などは入力を残したまま知らせる
+    if (res.accepted.length) $("names").value = "";
+    await poll();
+  } catch (e) {
+    alert("取得依頼の送信に失敗しました。サーバーが起動しているか確認してください。");
+  } finally { $("fetchBtn").disabled = false; }
+};
+
+async function retry(name) {
+  if (!confirm(`「${name}」を別の検索候補から取り直します。API枠を消費することがあります。よろしいですか?`)) return;
+  await fetch("/api/retry", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name }),
+  });
+  await poll();
+}
+
+$("searchBox").addEventListener("input", render);
+loadLogos(); loadQuota(); poll();
+</script>
+</body>
+</html>

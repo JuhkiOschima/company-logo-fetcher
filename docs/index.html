@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>企業ロゴストック</title>
+<style>
+  :root { --blue: #005fb8; --text: #222; --sub: #666; --line: #d9d9d9; --bg: #f5f6f8; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Meiryo UI", "Yu Gothic UI", sans-serif;
+         font-size: 15px; color: var(--text); background: var(--bg); }
+  header { background: #fff; border-bottom: 1px solid var(--line);
+           padding: 14px 20px; display: flex; flex-wrap: wrap; gap: 10px;
+           align-items: baseline; }
+  header h1 { font-size: 20px; margin: 0 16px 0 0; }
+  #quota { color: var(--sub); font-size: 13px; }
+  main { max-width: 1200px; margin: 0 auto; padding: 18px 20px 40px; }
+  section { background: #fff; border: 1px solid var(--line); border-radius: 10px;
+            padding: 16px 18px; margin-bottom: 18px; }
+  h2 { font-size: 16px; margin: 0 0 10px; }
+  .hint { color: var(--sub); font-size: 13px; }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  button, .btn { font: inherit; padding: 8px 18px; border-radius: 8px; cursor: pointer;
+                 border: 1px solid var(--line); background: #fff; color: var(--text);
+                 text-decoration: none; display: inline-block; }
+  .btn.primary, button.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+  #searchBox { width: 280px; font: inherit; padding: 8px 12px;
+               border: 1px solid var(--line); border-radius: 8px; }
+  #grid { display: grid; gap: 14px;
+          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 10px;
+          padding: 12px; }
+  .thumb { height: 120px; display: flex; align-items: center; justify-content: center;
+           border-radius: 6px; border: 1px solid #eee;
+           background: repeating-conic-gradient(#eceff3 0% 25%, #fff 0% 50%) 0 0/20px 20px; }
+  .thumb img { max-width: 92%; max-height: 100px; }
+  .card .name { font-weight: bold; margin: 8px 0 2px; }
+  .card .meta { color: var(--sub); font-size: 12px; margin-bottom: 8px; }
+  .card .row { gap: 6px; }
+  .card button, .card .btn { padding: 5px 12px; font-size: 13px; }
+  #empty { color: var(--sub); padding: 8px 2px; display: none; }
+  #lastRun { font-size: 13px; line-height: 1.9; margin-top: 8px; }
+  .ok { color: #107c10; } .ng { color: #b00020; }
+  footer { color: var(--sub); font-size: 12px; margin-top: 8px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>企業ロゴストック</h1>
+  <span id="quota"></span>
+</header>
+<main>
+  <section>
+    <h2>① ロゴを取得する</h2>
+    <div class="row">
+      <a class="btn primary" id="fetchLink" href="#" target="_blank" rel="noopener">取得画面を開く(GitHub Actions)</a>
+      <span class="hint">開いた画面で「Run workflow」→ 企業名を入力 → 緑のボタン。1〜2分後にこのページへ反映されます(要リロード)。</span>
+    </div>
+    <div id="lastRun"></div>
+  </section>
+
+  <section>
+    <div class="row" style="justify-content: space-between; margin: 0 0 12px;">
+      <h2 style="margin:0">② ストックから探す(<span id="count">0</span>社)</h2>
+      <input id="searchBox" type="search" placeholder="🔍 企業名で絞り込み">
+    </div>
+    <div id="grid"></div>
+    <div id="empty">一致する企業がありません。「① ロゴを取得する」から追加できます。</div>
+    <footer>
+      「コピー」を押して PowerPoint に Ctrl+V(透過のまま貼れます)。うまくいかない場合は画像を右クリック→「画像をコピー」。
+      まとめて欲しいときは <a href="logos.pptx">全ロゴ入り pptx をダウンロード</a>(1スライドに全社)。
+    </footer>
+  </section>
+</main>
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+let logos = [];
+let repoUrl = "";
+let loadFailed = false;
+const canJsCopy = window.isSecureContext && navigator.clipboard && window.ClipboardItem;
+
+function logoUrl(name) { return "logos/" + encodeURIComponent(name) + ".png"; }
+
+// 全角/半角・大文字小文字の違いで検索を取りこぼさないように正規化する
+const norm = (s) => s.normalize("NFKC").toLowerCase();
+
+function render() {
+  const word = norm($("searchBox").value.trim());
+  const grid = $("grid");
+  grid.textContent = "";
+  let shown = 0;
+  for (const item of logos) {
+    if (word && !norm(item.name).includes(word)) continue;
+    shown++;
+    const card = document.createElement("div"); card.className = "card";
+    const thumb = document.createElement("div"); thumb.className = "thumb";
+    const img = document.createElement("img");
+    img.src = logoUrl(item.name); img.alt = item.name; img.loading = "lazy";
+    img.title = "コピーで PPT に貼れます(だめなら右クリック→画像をコピー)";
+    thumb.appendChild(img); card.appendChild(thumb);
+    const name = document.createElement("div"); name.className = "name";
+    name.textContent = item.name; card.appendChild(name);
+    const meta = document.createElement("div"); meta.className = "meta";
+    meta.textContent = (item.domain ? "取得元: " + item.domain + " / " : "") + item.date;
+    card.appendChild(meta);
+    const row = document.createElement("div"); row.className = "row";
+    if (canJsCopy) {
+      const cp = document.createElement("button"); cp.className = "primary"; cp.textContent = "コピー";
+      cp.onclick = () => copyPng(item.name, cp); row.appendChild(cp);
+    }
+    const dl = document.createElement("a"); dl.className = "btn"; dl.textContent = "ダウンロード";
+    dl.href = logoUrl(item.name); dl.download = item.name + ".png"; row.appendChild(dl);
+    if (repoUrl) {
+      const rt = document.createElement("a"); rt.className = "btn"; rt.textContent = "やり直し";
+      rt.href = repoUrl + "/actions/workflows/fetch-logos.yml"; rt.target = "_blank"; rt.rel = "noopener";
+      rt.title = "取得画面の「retry」欄にこの企業名を入れて実行すると、別の候補から取り直します";
+      rt.onclick = () => { navigator.clipboard?.writeText(item.name).catch(() => {}); };
+      row.appendChild(rt);
+    }
+    card.appendChild(row);
+    grid.appendChild(card);
+  }
+  $("count").textContent = String(logos.length);
+  $("empty").textContent = loadFailed
+    ? "一覧の読み込みに失敗しました。ページをリロードしてください。"
+    : "一致する企業がありません。「① ロゴを取得する」から追加できます。";
+  $("empty").style.display = shown ? "none" : "block";
+}
+
+async function copyPng(name, btn) {
+  const blobPromise = fetch(logoUrl(name)).then((r) => {
+    if (!r.ok) throw new Error("fetch failed");
+    return r.blob();
+  });
+  try {
+    // Safari はクリック操作の直後に同期的に write する必要があるため、
+    // blob の Promise をそのまま ClipboardItem に渡す
+    await navigator.clipboard.write([new ClipboardItem({ "image/png": blobPromise })]);
+  } catch (e) {
+    try {
+      // Promise 非対応の古い Chromium 向けフォールバック
+      await navigator.clipboard.write([new ClipboardItem({ "image/png": await blobPromise })]);
+    } catch (e2) {
+      alert("コピーに失敗しました。画像を右クリック→「画像をコピー」をお試しください。");
+      return;
+    }
+  }
+  btn.textContent = "コピーしました"; setTimeout(() => (btn.textContent = "コピー"), 1500);
+}
+
+async function loadJson(path) {
+  const res = await fetch(path + "?t=" + Date.now());  // Pages のキャッシュを避ける
+  if (!res.ok) throw new Error(path);
+  return res.json();
+}
+
+async function init() {
+  try {
+    const conf = await loadJson("config.json");
+    repoUrl = conf.repo || "";
+  } catch (e) { /* 設定なしでも閲覧は可能 */ }
+  if (repoUrl) {
+    $("fetchLink").href = repoUrl + "/actions/workflows/fetch-logos.yml";
+  } else {
+    $("fetchLink").style.display = "none";
+  }
+  try {
+    logos = await loadJson("index.json");
+  } catch (e) { logos = []; loadFailed = true; }
+  render();
+  try {
+    const q = await loadJson("quota.json");
+    const parts = [];
+    if (q.serpapi) parts.push(`検索 残り ${q.serpapi.left}/${q.serpapi.total}`);
+    if (q.removebg) {
+      let t = `背景削除 残り無料 ${q.removebg.free}回`;
+      if (q.removebg.credits) t += `+クレジット${q.removebg.credits}`;
+      parts.push(t);
+    }
+    if (parts.length) $("quota").textContent =
+      `今月のAPI残数(全員共有): ${parts.join(" | ")}(${q.updated} 時点)`;
+  } catch (e) { /* 表示できなくても閲覧には影響しない */ }
+  try {
+    const lr = await loadJson("last_run.json");
+    const box = $("lastRun");
+    const head = document.createElement("div"); head.className = "hint";
+    head.textContent = `直近の取得(${lr.at}):`;
+    box.appendChild(head);
+    for (const r of lr.results.slice(0, 20)) {
+      const line = document.createElement("div");
+      line.className = r.ok ? "ok" : "ng";
+      line.textContent = `${r.name}: ${r.ok ? "成功" + (r.domain ? `(${r.domain})` : "") : "失敗 - " + r.error}`;
+      box.appendChild(line);
+    }
+  } catch (e) { /* まだ実行履歴がない */ }
+}
+
+$("searchBox").addEventListener("input", render);
+init();
+</script>
+</body>
+</html>

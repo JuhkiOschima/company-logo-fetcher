@@ -1,0 +1,71 @@
+name: ロゴ取得
+
+on:
+  workflow_dispatch:
+    inputs:
+      companies:
+        description: '企業名(改行・「、」・カンマ・/ 区切りで複数可、最大20社)'
+        required: false
+        type: string
+      retry:
+        description: 'やり直す企業名(1社。別の検索候補から取り直します)'
+        required: false
+        type: string
+
+# 取得はAPI保護のため常に直列(ローカル版の単一ワーカーと同じ方針)
+concurrency:
+  group: fetch-logos
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    # 最大20社 × 最悪ケース(候補の応答待ち等)でも収まる余裕を持たせる。
+    # タイムアウトで途中終了しても、下の if: always() コミットが成果を守る。
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: 依存関係のインストール
+        run: pip install -r requirements.txt
+
+      - name: ロゴ取得とストック更新
+        env:
+          SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
+          REMOVEBG_KEY: ${{ secrets.REMOVEBG_KEY }}
+          # inputs はシェルに直接展開せず、必ず環境変数経由で渡す(コマンド注入対策)
+          COMPANIES: ${{ inputs.companies }}
+          RETRY: ${{ inputs.retry }}
+        run: python tools/ci_fetch.py
+
+      # 取得ステップが失敗・タイムアウトしても、そこまでの成果(API消費分の
+      # PNG・キャッシュ)を失わないよう、常にコミットを試みる
+      - name: 変更をコミット
+        if: always()
+        env:
+          MSG: 'ロゴ取得: ${{ inputs.companies || inputs.retry || ''再生成'' }}'
+        run: |
+          git config user.name "logo-stock-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs ci-cache
+          if git diff --cached --quiet; then
+            echo "変更なし(コミットしません)"
+            exit 0
+          fi
+          git commit -m "$MSG"
+          # 競合しても取得済みの成果を捨てないよう、push を粘り強く試みる
+          for i in 1 2 3; do
+            if git push; then
+              exit 0
+            fi
+            git pull --rebase || { git rebase --abort; git pull --no-edit -X ours; }
+          done
+          git push

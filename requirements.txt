@@ -1,0 +1,6 @@
+Pillow>=11
+requests>=2.32
+pywin32>=306; sys_platform == "win32"
+python-pptx>=1.0
+truststore>=0.10
+flask>=3

@@ -1,0 +1,34 @@
+# このファイルを config.toml にコピーして、自分のAPIキーを記入してください。
+# config.toml は Git に登録されません(.gitignore 済み)。
+
+[search]
+# 画像検索プロバイダ。現在は "serpapi" のみ対応。
+provider = "serpapi"
+# SerpAPI の API キー。https://serpapi.com/manage-api-key で取得。
+api_key = "b9ec53bda440cfeed194b4747b445b051a1bd3c04be26cdc30f1734578d9acc4"
+# 1社あたり取得する候補数。上位から順に試し、失敗したら次へ。
+candidates = 5
+# 検索クエリのテンプレート。{name} が企業名に置き換わる。
+query_template = "{name} ロゴ"
+# 「株式会社」などの法人格表記を検索前に取り除く。
+strip_legal_suffix = true
+
+[removebg]
+# remove.bg の API キー。https://www.remove.bg/dashboard#api-key で取得。
+api_key = "PjPQHyGNycQfF6xX9vcsmANQ"
+# 出力サイズ。"preview" は無料枠向け(最大 0.25MP)、"auto" は課金対象になる場合がある。
+size = "preview"
+
+[output]
+# 出力先フォルダ
+dir = "output"
+# トリミング後に足す余白の割合(長辺に対する比率)
+padding_ratio = 0.02
+# 出力画像の長辺の上限 px
+max_long_edge = 1024
+# 全ロゴを1スライドに並べた pptx を出力するか
+pptx = true
+
+[cache]
+# 中間生成物の保存先。同じ企業を再実行したときAPIを呼ばずに済ませるために使う。
+dir = "cache"

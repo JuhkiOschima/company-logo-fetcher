@@ -1,0 +1,12 @@
+# APIキーを含むため、絶対に登録しない
+config.toml
+
+# 生成物・中間ファイル
+cache/
+output/
+.venv/
+__pycache__/
+*.pyc
+dist/
+*.tmp
+_enc_test.txt
