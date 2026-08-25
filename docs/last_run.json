@@ -1,12 +1,12 @@
 {
- "at": "2026-08-25 11:12 UTC",
- "run_id": "32841085937",
+ "at": "2026-08-25 11:13 UTC",
+ "run_id": "32841200635",
  "results": [
   {
    "name": "任天堂",
    "ok": true,
-   "domain": "peacsmind.com",
-   "used_removebg": true,
+   "domain": "ja.wikipedia.org",
+   "used_removebg": false,
    "from_cache": false,
    "error": ""
   }
