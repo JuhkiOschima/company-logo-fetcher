@@ -18,8 +18,10 @@ APIキーは環境変数(Actions の Secrets)から読む。値はログに出�
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
+import shutil
 import sys
 import time
 from pathlib import Path
@@ -87,6 +89,9 @@ def rebuild_index(cfg: Config, fetched: set[str]) -> None:
             "name": p.stem,
             "domain": meta.get("source_domain", ""),
             "date": date,
+            # 画像内容のハッシュ。やり直しで画像が変わったとき、ブラウザ・CDNの
+            # キャッシュを確実に無効化するために URL のクエリとして使う
+            "v": hashlib.md5(p.read_bytes()).hexdigest()[:8],
         })
     items.sort(key=lambda i: (i["date"], i["name"]), reverse=True)
     index_path.write_text(
@@ -129,6 +134,24 @@ def main() -> int:
     # 改行・制御文字を除去(Actionsのログはコマンド解釈されるため、行頭偽装を防ぐ)
     retry_name = " ".join(os.environ.get("RETRY", "").split())
 
+    # --- ストックからの削除(ビューワーの「ストックから削除」ボタン) ---
+    delete_names = naming.smart_split(os.environ.get("DELETE", ""))
+    delete_names = [n for n in delete_names if "\\" not in n and ".." not in n][:FETCH_LIMIT]
+    deleted_results: list[LogoResult] = []
+    for name in delete_names:
+        safe = naming.safe_filename(name)
+        png = LOGOS / f"{safe}.png"
+        existed = png.exists()
+        if existed:
+            png.unlink()
+        cache_dir = cfg.cache_dir / safe
+        if cache_dir.is_dir():
+            shutil.rmtree(cache_dir, ignore_errors=True)
+        print(f"削除: {name}" + ("" if existed else "(ストックに存在しませんでした)"), flush=True)
+        deleted_results.append(LogoResult(
+            company=name, ok=existed,
+            error="" if existed else "ストックに存在しませんでした"))
+
     results: list[LogoResult] = []
     fetched: set[str] = set()
     credit_stop = False
@@ -158,22 +181,23 @@ def main() -> int:
     write_quota(cfg, provider)
     write_config_json()
 
+    def _rdict(r: LogoResult, deleted: bool = False) -> dict:
+        return {
+            "name": r.company, "ok": r.ok, "domain": r.source_domain,
+            "used_removebg": r.used_removebg, "from_cache": r.from_cache,
+            "error": r.error, "deleted": deleted,
+        }
+
     (DOCS / "last_run.json").write_text(json.dumps({
         "at": time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime()),
         # ビューワーが「自分の実行の結果が反映されたか」を突合するための識別子
         "run_id": os.environ.get("GITHUB_RUN_ID", ""),
-        "results": [{
-            "name": r.company,
-            "ok": r.ok,
-            "domain": r.source_domain,
-            "used_removebg": r.used_removebg,
-            "from_cache": r.from_cache,
-            "error": r.error,
-        } for r in results],
+        "results": [_rdict(r) for r in results] + [_rdict(r, True) for r in deleted_results],
     }, ensure_ascii=False, indent=1), encoding="utf-8")
 
     ok = sum(1 for r in results if r.ok)
-    print(f"完了: {ok}/{len(results)} 件成功(ストック総数: {len(entries)}社)")
+    print(f"完了: {ok}/{len(results)} 件成功、削除 {len(deleted_results)} 件"
+          f"(ストック総数: {len(entries)}社)")
     for r in results:
         mark = "OK" if r.ok else "NG"
         print(f"  {mark} {r.company}" + (f" - {r.error}" if r.error else ""))

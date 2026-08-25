@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <!-- トークンを扱うページなので、通信先を自サイトと GitHub API に限定する(多層防御) -->
 <meta http-equiv="Content-Security-Policy"
-      content="default-src 'self'; img-src 'self' data:; connect-src 'self' https://api.github.com; style-src 'unsafe-inline'; script-src 'unsafe-inline'; object-src 'none'; base-uri 'none'; form-action 'none'">
+      content="default-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://api.github.com; style-src 'unsafe-inline'; script-src 'unsafe-inline'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>企業ロゴストック</title>
 <style>
   :root { --blue: #005fb8; --text: #222; --sub: #666; --line: #d9d9d9; --bg: #f5f6f8; }
@@ -23,6 +23,7 @@
             padding: 16px 18px; margin-bottom: 18px; }
   h2 { font-size: 16px; margin: 0 0 10px; }
   .hint { color: var(--sub); font-size: 13px; }
+  .note { color: var(--sub); font-size: 12px; }
   .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
   button, .btn { font: inherit; padding: 8px 18px; border-radius: 8px; cursor: pointer;
                  border: 1px solid var(--line); background: #fff; color: var(--text);
@@ -34,27 +35,28 @@
   textarea:focus { outline: 2px solid var(--blue); border-color: transparent; }
   input[type="password"], input[type="search"] { font: inherit; padding: 8px 12px;
              border: 1px solid var(--line); border-radius: 8px; }
-  #searchBox { width: 280px; }
-  #grid { display: grid; gap: 14px;
+  #searchBox { width: 240px; }
+  .grid { display: grid; gap: 14px;
           grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
   .card { background: #fff; border: 1px solid var(--line); border-radius: 10px;
           padding: 12px; }
   .thumb { height: 120px; display: flex; align-items: center; justify-content: center;
-           border-radius: 6px; border: 1px solid #eee;
+           border-radius: 6px; border: 1px solid #eee; cursor: pointer;
            background: repeating-conic-gradient(#eceff3 0% 25%, #fff 0% 50%) 0 0/20px 20px; }
   .thumb img { max-width: 92%; max-height: 100px; }
   .card .name { font-weight: bold; margin: 8px 0 2px; }
   .card .meta { color: var(--sub); font-size: 12px; margin-bottom: 8px; }
   .card .row { gap: 6px; }
   .card button, .card .btn { padding: 5px 12px; font-size: 13px; }
-  #empty { color: var(--sub); padding: 8px 2px; display: none; }
+  .card label.sel { font-size: 13px; color: var(--sub); display: flex; gap: 4px;
+                    align-items: center; cursor: pointer; margin-right: 2px; }
+  #stockEmpty { color: var(--sub); padding: 8px 2px; display: none; }
   #fetchStatus { margin-top: 10px; font-size: 14px; }
   #lastRun { font-size: 13px; line-height: 1.9; margin-top: 8px; }
   .ok { color: #107c10; } .ng { color: #b00020; } .working { color: var(--blue); }
   #tokenBox { border: 1px solid var(--line); border-radius: 8px; background: #f8fafc;
               padding: 12px 14px; margin-top: 10px; font-size: 13px; line-height: 1.8; }
   #tokenBox ol { margin: 6px 0; padding-left: 20px; }
-  footer { color: var(--sub); font-size: 12px; margin-top: 8px; }
   a { color: var(--blue); }
 </style>
 </head>
@@ -66,46 +68,67 @@
 <main>
   <section>
     <h2>① ロゴを取得する</h2>
-    <div class="hint">企業名を入力してください(改行・「、」・「/」・空白区切りで複数可、最大20社)。
-      取得済みの企業はストックが使われ、APIを消費しません。</div>
+    <div class="hint">
+      企業名もしくは企業リストを記入してください。<br>
+      ※最大20社まで出力が可能です<br>
+      ※自動的に個社検索を行うため、改行・「、」・「/」・空白など、区切りの形式は自由です
+    </div>
     <textarea id="names" placeholder="例: トヨタ自動車、ソニーグループ、NTTデータ"></textarea>
     <div class="row" style="margin-top:8px">
       <button class="primary" id="fetchBtn">ロゴを取得</button>
       <span class="hint" id="tokenState"></span>
     </div>
     <div id="tokenBox" style="display:none">
-      <strong>初回のみ: GitHubトークンの設定(1〜2分)</strong><br>
-      取得の実行にはあなたのGitHubアカウントの権限が必要です。トークンはこのブラウザ内にだけ保存され、外部には送られません(GitHubへの認証のみに使用)。
+      <strong>GitHubトークンの設定(初回のみ・所要時間 約2分)</strong><br>
+      ロゴ取得の実行には、あなたのGitHubアカウントの許可証(トークン)が必要です。
+      トークンはこのブラウザ内にだけ保存され、GitHubへの認証以外には使われません。<br>
+      <strong>事前準備:</strong> このリポジトリへの招待(コラボレーター)を受けていること。未招待の場合は管理者に依頼してください。
       <ol>
-        <li><a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">トークン作成ページを開く</a></li>
-        <li>Repository access → <strong>Only select repositories</strong> → <code>company-logo-fetcher</code> を選択</li>
-        <li>Permissions → Repository permissions → <strong>Actions</strong> を <strong>Read and write</strong> に</li>
-        <li>「Generate token」を押し、表示されたトークンをコピーして下に貼り付け</li>
+        <li><a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHubのトークン作成ページを開く</a>(GitHubへのログインを求められたらログイン)</li>
+        <li>Token name: 好きな名前(例: logo-stock)/ Expiration: 好きな期限(例: 90 days)</li>
+        <li>「Repository access」で <strong>Only select repositories</strong> を選び、<code>company-logo-fetcher</code> を選択</li>
+        <li>「Permissions」→ Repository permissions → <strong>Actions</strong> を <strong>Read and write</strong> に変更</li>
+        <li>ページ下部の緑の「Generate token」ボタンを押す</li>
+        <li>表示された <code>github_pat_...</code> をコピーして下の欄に貼り付け、「保存」</li>
       </ol>
       <div class="row">
         <input type="password" id="tokenInput" placeholder="github_pat_..." style="flex:1; min-width:240px">
         <button id="tokenSave">保存</button>
         <button id="tokenClear">削除</button>
       </div>
-      <div class="hint" style="margin-top:6px">
-        ※ リポジトリへの招待(コラボレーター)を受けていない場合は、先に管理者へ依頼してください。
-      </div>
     </div>
     <div id="fetchStatus"></div>
     <div id="lastRun"></div>
   </section>
 
-  <section>
-    <div class="row" style="justify-content: space-between; margin: 0 0 12px;">
-      <h2 style="margin:0">② ストックから探す(<span id="count">0</span>社)</h2>
-      <input id="searchBox" type="search" placeholder="🔍 企業名で絞り込み">
+  <section id="todaySection" style="display:none">
+    <div class="row" style="justify-content: space-between; margin: 0 0 4px;">
+      <h2 style="margin:0">② 今回の出力結果(<span id="todayCount">0</span>社)</h2>
+      <button id="todayPptx">PPTXに出力</button>
     </div>
-    <div id="grid"></div>
-    <div id="empty">一致する企業がありません。「① ロゴを取得する」から追加できます。</div>
-    <footer>
-      「コピー」を押して PowerPoint に Ctrl+V(透過のまま貼れます)。うまくいかない場合は画像を右クリック→「画像をコピー」。
-      まとめて欲しいときは <a href="logos.pptx">全ロゴ入り pptx をダウンロード</a>(1スライドに全社)。
-    </footer>
+    <div class="note" style="margin-bottom:10px">
+      ※PPTXに出力することで、一つずつコピー&ペーストをする手間が省けます。
+      チェックを入れたロゴだけを出力できます(チェックなしなら全部)。<br>
+      ※カードの「コピー」→ PowerPoint に Ctrl+V で透過のまま貼り付けられます。
+    </div>
+    <div class="grid" id="todayGrid"></div>
+  </section>
+
+  <section>
+    <div class="row" style="justify-content: space-between; margin: 0 0 4px;">
+      <h2 style="margin:0">③ ストック(<span id="count">0</span>社)</h2>
+      <span class="row" style="gap:6px">
+        <button id="stockPptx">PPTXに出力</button>
+        <button id="stockDelete">ストックから削除</button>
+        <input id="searchBox" type="search" placeholder="🔍 企業名で絞り込み">
+      </span>
+    </div>
+    <div class="note" style="margin-bottom:10px">
+      ※PPTXに出力することで、一つずつコピー&ペーストをする手間が省けます。チェックを入れたロゴが対象です。<br>
+      ※カードの「コピー」→ PowerPoint に Ctrl+V で透過のまま貼り付けられます。うまくいかない場合は画像を右クリック→「画像をコピー」。
+    </div>
+    <div class="grid" id="grid"></div>
+    <div id="stockEmpty"></div>
   </section>
 </main>
 <script>
@@ -117,12 +140,66 @@ let repoUrl = "";
 let repoApi = "";
 let loadFailed = false;
 const TOKEN_KEY = "logoStockToken";
+const SESSION_KEY = "logoStockSession";
 const canJsCopy = window.isSecureContext && navigator.clipboard && window.ClipboardItem;
+const selStock = new Set();
+const selToday = new Set();
 
-function logoUrl(name) { return "logos/" + encodeURIComponent(name) + ".png"; }
+function logoSrc(item) {
+  // ?v=画像ハッシュ で「やり直し」後の古いキャッシュ表示を防ぐ
+  return "logos/" + encodeURIComponent(item.name) + ".png" + (item.v ? "?v=" + item.v : "");
+}
 
 // 全角/半角・大文字小文字の違いで検索を取りこぼさないように正規化する
 const norm = (s) => s.normalize("NFKC").toLowerCase();
+
+function sessionNames() {
+  try { return JSON.parse(sessionStorage.getItem(SESSION_KEY)) || []; }
+  catch (e) { return []; }
+}
+function addSessionNames(names) {
+  const cur = sessionNames();
+  for (const n of names) if (!cur.includes(n)) cur.push(n);
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify(cur));
+}
+function removeSessionNames(names) {
+  sessionStorage.setItem(SESSION_KEY,
+    JSON.stringify(sessionNames().filter((n) => !names.includes(n))));
+}
+
+function makeCard(item, selSet) {
+  const card = document.createElement("div"); card.className = "card";
+  const thumb = document.createElement("div"); thumb.className = "thumb";
+  const img = document.createElement("img");
+  img.src = logoSrc(item); img.alt = item.name; img.loading = "lazy";
+  img.title = "コピーで PPT に貼れます(だめなら右クリック→画像をコピー)";
+  thumb.appendChild(img); card.appendChild(thumb);
+  const name = document.createElement("div"); name.className = "name";
+  name.textContent = item.name; card.appendChild(name);
+  const meta = document.createElement("div"); meta.className = "meta";
+  meta.textContent = (item.domain ? "取得元: " + item.domain + " / " : "") + item.date;
+  card.appendChild(meta);
+  const row = document.createElement("div"); row.className = "row";
+  const sel = document.createElement("label"); sel.className = "sel";
+  const cb = document.createElement("input"); cb.type = "checkbox";
+  cb.checked = selSet.has(item.name);
+  cb.onchange = () => { cb.checked ? selSet.add(item.name) : selSet.delete(item.name); };
+  sel.append(cb, "選択"); row.appendChild(sel);
+  if (canJsCopy) {
+    const cp = document.createElement("button"); cp.className = "primary"; cp.textContent = "コピー";
+    cp.onclick = () => copyPng(item, cp); row.appendChild(cp);
+    thumb.onclick = () => copyPng(item, cp);
+  }
+  const dl = document.createElement("a"); dl.className = "btn"; dl.textContent = "ダウンロード";
+  dl.href = logoSrc(item); dl.download = item.name + ".png"; row.appendChild(dl);
+  if (repoApi) {
+    const rt = document.createElement("button"); rt.textContent = "やり直し";
+    rt.title = "別の検索候補から取り直します(API枠を消費することがあります)";
+    rt.onclick = () => retryLogo(item.name); row.appendChild(rt);
+  }
+  card.appendChild(row);
+  return card;
+}
 
 function render() {
   const word = norm($("searchBox").value.trim());
@@ -132,41 +209,28 @@ function render() {
   for (const item of logos) {
     if (word && !norm(item.name).includes(word)) continue;
     shown++;
-    const card = document.createElement("div"); card.className = "card";
-    const thumb = document.createElement("div"); thumb.className = "thumb";
-    const img = document.createElement("img");
-    img.src = logoUrl(item.name); img.alt = item.name; img.loading = "lazy";
-    img.title = "コピーで PPT に貼れます(だめなら右クリック→画像をコピー)";
-    thumb.appendChild(img); card.appendChild(thumb);
-    const name = document.createElement("div"); name.className = "name";
-    name.textContent = item.name; card.appendChild(name);
-    const meta = document.createElement("div"); meta.className = "meta";
-    meta.textContent = (item.domain ? "取得元: " + item.domain + " / " : "") + item.date;
-    card.appendChild(meta);
-    const row = document.createElement("div"); row.className = "row";
-    if (canJsCopy) {
-      const cp = document.createElement("button"); cp.className = "primary"; cp.textContent = "コピー";
-      cp.onclick = () => copyPng(item.name, cp); row.appendChild(cp);
-    }
-    const dl = document.createElement("a"); dl.className = "btn"; dl.textContent = "ダウンロード";
-    dl.href = logoUrl(item.name); dl.download = item.name + ".png"; row.appendChild(dl);
-    if (repoApi) {
-      const rt = document.createElement("button"); rt.textContent = "やり直し";
-      rt.title = "別の検索候補から取り直します(API枠を消費することがあります)";
-      rt.onclick = () => retryLogo(item.name); row.appendChild(rt);
-    }
-    card.appendChild(row);
-    grid.appendChild(card);
+    grid.appendChild(makeCard(item, selStock));
   }
   $("count").textContent = String(logos.length);
-  $("empty").textContent = loadFailed
+  $("stockEmpty").textContent = loadFailed
     ? "一覧の読み込みに失敗しました。ページをリロードしてください。"
     : "一致する企業がありません。「① ロゴを取得する」から追加できます。";
-  $("empty").style.display = shown ? "none" : "block";
+  $("stockEmpty").style.display = shown ? "none" : "block";
+  renderToday();
 }
 
-async function copyPng(name, btn) {
-  const blobPromise = fetch(logoUrl(name)).then((r) => {
+function renderToday() {
+  const names = sessionNames();
+  const items = logos.filter((l) => names.includes(l.name));
+  $("todaySection").style.display = items.length ? "block" : "none";
+  $("todayCount").textContent = String(items.length);
+  const grid = $("todayGrid");
+  grid.textContent = "";
+  for (const item of items) grid.appendChild(makeCard(item, selToday));
+}
+
+async function copyPng(item, btn) {
+  const blobPromise = fetch(logoSrc(item)).then((r) => {
     if (!r.ok) throw new Error("fetch failed");
     return r.blob();
   });
@@ -191,6 +255,155 @@ async function loadJson(path) {
   return res.json();
 }
 
+// --- ブラウザ内での PPTX 生成(選んだロゴを1スライドに並べる) ---
+
+function crc32(u8) {
+  let t = crc32.t;
+  if (!t) {
+    t = crc32.t = new Int32Array(256);
+    for (let n = 0; n < 256; n++) {
+      let c = n;
+      for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1;
+      t[n] = c;
+    }
+  }
+  let c = -1;
+  for (let i = 0; i < u8.length; i++) c = t[(c ^ u8[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ -1) >>> 0;
+}
+
+function buildZip(files) {
+  // 無圧縮(store)のZIP。PNGは圧縮済みなのでこれで十分
+  const enc = new TextEncoder();
+  const parts = []; const central = []; let offset = 0; let cdSize = 0;
+  for (const f of files) {
+    const nameB = enc.encode(f.name);
+    const data = typeof f.data === "string" ? enc.encode(f.data) : f.data;
+    const crc = crc32(data);
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true);
+    lh.setUint16(6, 0x0800, true);  // ファイル名UTF-8フラグ
+    lh.setUint16(8, 0, true); lh.setUint16(10, 0, true); lh.setUint16(12, 0x5821, true);
+    lh.setUint32(14, crc, true); lh.setUint32(18, data.length, true);
+    lh.setUint32(22, data.length, true);
+    lh.setUint16(26, nameB.length, true); lh.setUint16(28, 0, true);
+    parts.push(new Uint8Array(lh.buffer), nameB, data);
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true);
+    ch.setUint16(8, 0x0800, true); ch.setUint16(10, 0, true);
+    ch.setUint16(12, 0, true); ch.setUint16(14, 0x5821, true);
+    ch.setUint32(16, crc, true); ch.setUint32(20, data.length, true);
+    ch.setUint32(24, data.length, true);
+    ch.setUint16(28, nameB.length, true);
+    ch.setUint32(42, offset, true);
+    central.push(new Uint8Array(ch.buffer), nameB);
+    cdSize += 46 + nameB.length;
+    offset += 30 + nameB.length + data.length;
+  }
+  const end = new DataView(new ArrayBuffer(22));
+  end.setUint32(0, 0x06054b50, true);
+  end.setUint16(8, files.length, true); end.setUint16(10, files.length, true);
+  end.setUint32(12, cdSize, true); end.setUint32(16, offset, true);
+  return new Blob([...parts, ...central, new Uint8Array(end.buffer)],
+    { type: "application/vnd.openxmlformats-officedocument.presentationml.presentation" });
+}
+
+const escXml = (s) => s.replace(/[<>&"']/g,
+  (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&apos;" }[c]));
+
+const NS = 'xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main"';
+const XMLH = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
+const EMPTY_TREE = '<p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr/></p:spTree>';
+
+function themeXml() {
+  const accents = ["4472C4", "ED7D31", "A5A5A5", "FFC000", "5B9BD5", "70AD47"]
+    .map((c, i) => `<a:accent${i + 1}><a:srgbClr val="${c}"/></a:accent${i + 1}>`).join("");
+  const fill = '<a:solidFill><a:schemeClr val="phClr"/></a:solidFill>';
+  const ln = `<a:ln w="6350">${fill}</a:ln>`;
+  return XMLH + `<a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" name="Office"><a:themeElements><a:clrScheme name="Office"><a:dk1><a:sysClr val="windowText" lastClr="000000"/></a:dk1><a:lt1><a:sysClr val="window" lastClr="FFFFFF"/></a:lt1><a:dk2><a:srgbClr val="44546A"/></a:dk2><a:lt2><a:srgbClr val="E7E6E6"/></a:lt2>${accents}<a:hlink><a:srgbClr val="0563C1"/></a:hlink><a:folHlink><a:srgbClr val="954F72"/></a:folHlink></a:clrScheme><a:fontScheme name="Office"><a:majorFont><a:latin typeface="Calibri Light"/><a:ea typeface=""/><a:cs typeface=""/></a:majorFont><a:minorFont><a:latin typeface="Calibri"/><a:ea typeface=""/><a:cs typeface=""/></a:minorFont></a:fontScheme><a:fmtScheme name="Office"><a:fillStyleLst>${fill}${fill}${fill}</a:fillStyleLst><a:lnStyleLst>${ln}${ln}${ln}</a:lnStyleLst><a:effectStyleLst><a:effectStyle><a:effectLst/></a:effectStyle><a:effectStyle><a:effectLst/></a:effectStyle><a:effectStyle><a:effectLst/></a:effectStyle></a:effectStyleLst><a:bgFillStyleLst>${fill}${fill}${fill}</a:bgFillStyleLst></a:fmtScheme></a:themeElements></a:theme>`;
+}
+
+function gridShape(count) {
+  if (count <= 3) return [count, 1];
+  if (count <= 8) return [4, Math.ceil(count / 4)];
+  return [5, Math.ceil(count / 5)];
+}
+
+function slideXml(items) {
+  // 位置計算は EMU 単位(1インチ = 914400)。CI側の logos.pptx と同じレイアウト
+  const SLIDE_W = 12192000, SLIDE_H = 6858000, MARGIN = 457200,
+        LABEL_H = 274320, GAP = 228600;
+  const [cols, rows] = gridShape(items.length);
+  const cellW = (SLIDE_W - MARGIN * 2 - GAP * (cols - 1)) / cols;
+  const cellH = (SLIDE_H - MARGIN * 2 - GAP * (rows - 1)) / rows;
+  const imageH = cellH - LABEL_H;
+  let shapes = ""; let id = 2;
+  items.forEach((it, i) => {
+    const col = i % cols, row = Math.floor(i / cols);
+    const cellX = MARGIN + (cellW + GAP) * col;
+    const cellY = MARGIN + (cellH + GAP) * row;
+    const scale = Math.min(cellW / it.w, imageH / it.h);
+    const w = Math.round(it.w * scale), h = Math.round(it.h * scale);
+    const x = Math.round(cellX + (cellW - w) / 2), y = Math.round(cellY + (imageH - h) / 2);
+    shapes += `<p:pic><p:nvPicPr><p:cNvPr id="${id++}" name="logo${i}"/><p:cNvPicPr/><p:nvPr/></p:nvPicPr><p:blipFill><a:blip r:embed="rId${i + 2}"/><a:stretch><a:fillRect/></a:stretch></p:blipFill><p:spPr><a:xfrm><a:off x="${x}" y="${y}"/><a:ext cx="${w}" cy="${h}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr></p:pic>`;
+    shapes += `<p:sp><p:nvSpPr><p:cNvPr id="${id++}" name="label${i}"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="${Math.round(cellX)}" y="${Math.round(cellY + imageH)}"/><a:ext cx="${Math.round(cellW)}" cy="${LABEL_H}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr><p:txBody><a:bodyPr wrap="square"/><a:lstStyle/><a:p><a:pPr algn="ctr"/><a:r><a:rPr lang="ja-JP" sz="1000"><a:solidFill><a:srgbClr val="404040"/></a:solidFill></a:rPr><a:t>${escXml(it.name)}</a:t></a:r></a:p></p:txBody></p:sp>`;
+  });
+  return XMLH + `<p:sld ${NS}><p:cSld><p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr/>${shapes}</p:spTree></p:cSld><p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr></p:sld>`;
+}
+
+async function buildPptx(names) {
+  const items = [];
+  for (const name of names) {
+    const item = logos.find((l) => l.name === name);
+    if (!item) continue;
+    const blob = await (await fetch(logoSrc(item))).blob();
+    const bmp = await createImageBitmap(blob);
+    items.push({ name, data: new Uint8Array(await blob.arrayBuffer()),
+                 w: bmp.width, h: bmp.height });
+    bmp.close();
+  }
+  if (!items.length) throw new Error("no items");
+  const relType = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
+  const files = [
+    { name: "[Content_Types].xml", data: XMLH + `<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Override PartName="/ppt/presentation.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml"/><Override PartName="/ppt/slideMasters/slideMaster1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml"/><Override PartName="/ppt/slideLayouts/slideLayout1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slideLayout+xml"/><Override PartName="/ppt/slides/slide1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/><Override PartName="/ppt/theme/theme1.xml" ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/></Types>` },
+    { name: "_rels/.rels", data: XMLH + `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="${relType}/officeDocument" Target="ppt/presentation.xml"/></Relationships>` },
+    { name: "ppt/presentation.xml", data: XMLH + `<p:presentation ${NS}><p:sldMasterIdLst><p:sldMasterId id="2147483648" r:id="rId1"/></p:sldMasterIdLst><p:sldIdLst><p:sldId id="256" r:id="rId2"/></p:sldIdLst><p:sldSz cx="12192000" cy="6858000"/><p:notesSz cx="6858000" cy="9144000"/></p:presentation>` },
+    { name: "ppt/_rels/presentation.xml.rels", data: XMLH + `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="${relType}/slideMaster" Target="slideMasters/slideMaster1.xml"/><Relationship Id="rId2" Type="${relType}/slide" Target="slides/slide1.xml"/></Relationships>` },
+    { name: "ppt/slideMasters/slideMaster1.xml", data: XMLH + `<p:sldMaster ${NS}><p:cSld>${EMPTY_TREE}</p:cSld><p:clrMap bg1="lt1" tx1="dk1" bg2="lt2" tx2="dk2" accent1="accent1" accent2="accent2" accent3="accent3" accent4="accent4" accent5="accent5" accent6="accent6" hlink="hlink" folHlink="folHlink"/><p:sldLayoutIdLst><p:sldLayoutId id="2147483649" r:id="rId1"/></p:sldLayoutIdLst></p:sldMaster>` },
+    { name: "ppt/slideMasters/_rels/slideMaster1.xml.rels", data: XMLH + `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="${relType}/slideLayout" Target="../slideLayouts/slideLayout1.xml"/><Relationship Id="rId2" Type="${relType}/theme" Target="../theme/theme1.xml"/></Relationships>` },
+    { name: "ppt/slideLayouts/slideLayout1.xml", data: XMLH + `<p:sldLayout ${NS} type="blank" preserve="1"><p:cSld>${EMPTY_TREE}</p:cSld><p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr></p:sldLayout>` },
+    { name: "ppt/slideLayouts/_rels/slideLayout1.xml.rels", data: XMLH + `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="${relType}/slideMaster" Target="../slideMasters/slideMaster1.xml"/></Relationships>` },
+    { name: "ppt/theme/theme1.xml", data: themeXml() },
+    { name: "ppt/slides/slide1.xml", data: slideXml(items) },
+    // rId1 は必ず slideLayout への関連にする。これが無いと PowerPoint がファイルを開けない
+    { name: "ppt/slides/_rels/slide1.xml.rels", data: XMLH + `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="${relType}/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>` + items.map((_it, i) => `<Relationship Id="rId${i + 2}" Type="${relType}/image" Target="../media/image${i + 1}.png"/>`).join("") + `</Relationships>` },
+  ];
+  items.forEach((it, i) => files.push({ name: `ppt/media/image${i + 1}.png`, data: it.data }));
+  return buildZip(files);
+}
+
+async function exportPptx(selSet, allItems, btn) {
+  const names = allItems.filter((n) => selSet.has(n));
+  const targets = names.length ? names : allItems;
+  if (!targets.length) return;
+  if (!names.length &&
+      !confirm(`チェックが無いため、表示中の ${targets.length} 社すべてを出力します。よろしいですか?`)) return;
+  const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = "生成中…";
+  try {
+    const blob = await buildPptx(targets);
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "ロゴ出力.pptx";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+  } catch (e) {
+    alert("PPTXの生成に失敗しました。リロードして再度お試しください。");
+  } finally {
+    btn.disabled = false; btn.textContent = orig;
+  }
+}
+
 // --- GitHub API(アプリ内からの取得実行) ---
 
 function getToken() { return localStorage.getItem(TOKEN_KEY) || ""; }
@@ -204,20 +417,13 @@ function ghHeaders() {
 
 function updateTokenState() {
   const state = $("tokenState");
-  if (!repoApi) { state.textContent = ""; return; }
-  if (getToken()) {
-    state.innerHTML = "";
-    state.append("トークン設定済み ✓ ");
-    const a = document.createElement("a"); a.href = "#"; a.textContent = "変更";
-    a.onclick = (e) => { e.preventDefault(); toggleTokenBox(true); };
-    state.append(a);
-  } else {
-    state.innerHTML = "";
-    state.append("初回はGitHubトークンの設定が必要です ");
-    const a = document.createElement("a"); a.href = "#"; a.textContent = "設定する";
-    a.onclick = (e) => { e.preventDefault(); toggleTokenBox(true); };
-    state.append(a);
-  }
+  state.textContent = "";
+  if (!repoApi) return;
+  state.append(getToken() ? "トークン設定済み ✓ " : "初回はGitHubトークンの設定が必要です(約2分) ");
+  const a = document.createElement("a"); a.href = "#";
+  a.textContent = "GitHubトークンの設定に関してはこちら";
+  a.onclick = (e) => { e.preventDefault(); toggleTokenBox($("tokenBox").style.display === "none"); };
+  state.append(a);
 }
 
 function toggleTokenBox(show) { $("tokenBox").style.display = show ? "block" : "none"; }
@@ -228,8 +434,8 @@ function setFetchStatus(text, cls) {
   el.className = cls || "";
 }
 
-function estimateCount(text) {
-  return text.split(/[\n\r\t,、，;；/／|｜ 　]+/).filter(Boolean).length;
+function splitNames(text) {
+  return text.split(/[\n\r\t,、，;；/／|｜ 　]+/).filter(Boolean);
 }
 
 async function dispatchWorkflow(inputs) {
@@ -323,6 +529,14 @@ async function runFetch(inputs, confirmMsg) {
       return;
     }
     const lr = await waitForPages(runId);
+    if (lr) {
+      // 今回の実行で成功した企業を「今回の出力結果」へ、削除された企業は一覧から外す
+      const okNames = lr.results.filter((r) => r.ok && !r.deleted).map((r) => r.name);
+      const delNames = lr.results.filter((r) => r.deleted && r.ok).map((r) => r.name);
+      addSessionNames(okNames);
+      removeSessionNames(delNames);
+      for (const n of delNames) { selStock.delete(n); selToday.delete(n); }
+    }
     await reloadData();
     if (inputs.companies !== undefined && $("names")) $("names").value = "";
     setFetchStatus(lr ? "完了しました。一覧を更新しました。"
@@ -349,7 +563,11 @@ function renderLastRun(lr) {
   for (const r of lr.results.slice(0, 20)) {
     const line = document.createElement("div");
     line.className = r.ok ? "ok" : "ng";
-    line.textContent = `${r.name}: ${r.ok ? "成功" + (r.domain ? `(${r.domain})` : "") : "失敗 - " + r.error}`;
+    if (r.deleted) {
+      line.textContent = `${r.name}: ${r.ok ? "ストックから削除しました" : r.error}`;
+    } else {
+      line.textContent = `${r.name}: ${r.ok ? "成功" + (r.domain ? `(${r.domain})` : "") : "失敗 - " + r.error}`;
+    }
     box.appendChild(line);
   }
 }
@@ -363,14 +581,14 @@ async function reloadData() {
   try {
     const q = await loadJson("quota.json");
     const parts = [];
-    if (q.serpapi) parts.push(`検索 残り ${q.serpapi.left}/${q.serpapi.total}`);
+    if (q.serpapi) parts.push(`検索(SerpApi) ${q.serpapi.left}/${q.serpapi.total}`);
     if (q.removebg) {
-      let t = `背景削除 残り無料 ${q.removebg.free}回`;
-      if (q.removebg.credits) t += `+クレジット${q.removebg.credits}`;
+      let t = `背景削除(remove.bg) ${q.removebg.free}/50`;
+      if (q.removebg.credits) t += `(+クレジット${q.removebg.credits})`;
       parts.push(t);
     }
-    if (parts.length) $("quota").textContent =
-      `今月のAPI残数(全員共有): ${parts.join(" | ")}(${q.updated} 時点)`;
+    $("quota").textContent = parts.length
+      ? `今月のクレジット残数(API): ${parts.join(" | ")}` : "";
   } catch (e) { /* 表示できなくても閲覧には影響しない */ }
   try { renderLastRun(await loadJson("last_run.json")); } catch (e) { /* まだ履歴がない */ }
 }
@@ -384,19 +602,46 @@ async function init() {
     }
   } catch (e) { /* 設定なしでも閲覧は可能 */ }
   updateTokenState();
-  if (!repoApi) $("fetchBtn").disabled = true;
+  if (!repoApi) { $("fetchBtn").disabled = true; $("stockDelete").disabled = true; }
   await reloadData();
 }
 
 $("searchBox").addEventListener("input", render);
+
 $("fetchBtn").onclick = () => {
   const text = $("names").value.trim();
   if (!text) return;
-  const n = estimateCount(text);
-  if (n > 20) { setFetchStatus(`一度に取得できるのは20社までです(${n}社を検出)。分けて実行してください。`, "ng"); return; }
-  runFetch({ companies: text },
-    `${n}社前後を処理します。取得済みの企業はAPIを消費しません。よろしいですか?`);
+  const tokens = splitNames(text);
+  if (tokens.length > 20) {
+    setFetchStatus(`一度に取得できるのは20社までです(${tokens.length}社を検出)。分けて実行してください。`, "ng");
+    return;
+  }
+  // すでにストックにある企業は明示して確認する
+  const stockSet = new Set(logos.map((l) => norm(l.name)));
+  const dup = tokens.filter((t) => stockSet.has(norm(t)));
+  let msg = `${tokens.length}社を処理します。よろしいですか?`;
+  if (dup.length) {
+    msg = `${dup.join("、")}は既にストックにロゴが存在します。再実行しますか?\n(全体で${tokens.length}社を処理します)`;
+  }
+  runFetch({ companies: text }, msg);
 };
+
+$("todayPptx").onclick = () => exportPptx(selToday, sessionNames(), $("todayPptx"));
+$("stockPptx").onclick = () => {
+  const word = norm($("searchBox").value.trim());
+  const visible = logos.filter((l) => !word || norm(l.name).includes(word)).map((l) => l.name);
+  exportPptx(selStock, visible, $("stockPptx"));
+};
+$("stockDelete").onclick = () => {
+  const names = logos.map((l) => l.name).filter((n) => selStock.has(n));
+  if (!names.length) {
+    alert("削除するロゴの「選択」にチェックを入れてください。");
+    return;
+  }
+  runFetch({ delete: names.join("\n") },
+    `${names.join("、")}(${names.length}社)をストックから削除します。\n元に戻すには再取得が必要です。よろしいですか?`);
+};
+
 $("tokenSave").onclick = () => {
   const v = $("tokenInput").value.trim();
   if (!v) return;
