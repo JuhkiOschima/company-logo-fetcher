@@ -1,15 +1,24 @@
 {
- "at": "2026-08-25 16:58 UTC",
- "run_id": "32875129079",
+ "at": "2026-08-25 17:05 UTC",
+ "run_id": "32875797435",
  "results": [
   {
-   "name": "NTTドコモ",
+   "name": "村田製作所",
    "ok": true,
-   "domain": "japan.cnet.com",
-   "used_removebg": true,
+   "domain": "",
+   "used_removebg": false,
    "from_cache": false,
    "error": "",
-   "deleted": false
+   "deleted": true
+  },
+  {
+   "name": "dアカウント",
+   "ok": true,
+   "domain": "",
+   "used_removebg": false,
+   "from_cache": false,
+   "error": "",
+   "deleted": true
   }
  ]
 }
