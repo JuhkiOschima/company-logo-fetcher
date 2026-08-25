@@ -1,16 +1,7 @@
 {
- "at": "2026-08-25 14:51 UTC",
- "run_id": "32862132374",
+ "at": "2026-08-25 14:54 UTC",
+ "run_id": "32862401078",
  "results": [
-  {
-   "name": "東京ガス",
-   "ok": true,
-   "domain": "tokyo-gas.co.jp",
-   "used_removebg": true,
-   "from_cache": false,
-   "error": "",
-   "deleted": false
-  },
   {
    "name": "信越化学工業",
    "ok": false,
@@ -18,15 +9,6 @@
    "used_removebg": false,
    "from_cache": false,
    "error": "RemoveBgError: remove.bg がエラーを返しました (HTTP 400): Invalid file type",
-   "deleted": false
-  },
-  {
-   "name": "セブン&アイ・ホールディングス",
-   "ok": true,
-   "domain": "7andi.com",
-   "used_removebg": true,
-   "from_cache": false,
-   "error": "",
    "deleted": false
   }
  ]
