@@ -1,5 +1,15 @@
 {
- "at": "2026-08-25 17:15 UTC",
- "run_id": "32876846573",
- "results": []
+ "at": "2026-08-25 17:20 UTC",
+ "run_id": "32877323785",
+ "results": [
+  {
+   "name": "NTTドコモ",
+   "ok": true,
+   "domain": "",
+   "used_removebg": false,
+   "from_cache": false,
+   "error": "",
+   "deleted": true
+  }
+ ]
 }
