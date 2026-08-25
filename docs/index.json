@@ -108,6 +108,12 @@
   "v": "df6b94d5"
  },
  {
+  "name": "ドコモの銀行",
+  "domain": "prtimes.jp",
+  "date": "2026-08-25",
+  "v": "36fbe204"
+ },
+ {
   "name": "トヨタ自動車",
   "domain": "global.toyota",
   "date": "2026-08-25",
@@ -168,10 +174,28 @@
   "v": "af9f1f49"
  },
  {
+  "name": "dポイント",
+  "domain": "atgift.jp",
+  "date": "2026-08-25",
+  "v": "6d5745f0"
+ },
+ {
+  "name": "dアカウント",
+  "domain": "tanocchi-shisanunyo.com",
+  "date": "2026-08-25",
+  "v": "b57a194b"
+ },
+ {
   "name": "SyncMe",
   "domain": "prtimes.jp",
   "date": "2026-08-25",
   "v": "eaa0e4fe"
+ },
+ {
+  "name": "NTTドコモ",
+  "domain": "docomo.ne.jp",
+  "date": "2026-08-25",
+  "v": "49682e3c"
  },
  {
   "name": "NTTデータ",
