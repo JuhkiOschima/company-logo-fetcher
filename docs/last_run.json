@@ -1,38 +1,11 @@
 {
- "at": "2026-08-25 16:52 UTC",
- "run_id": "32874512543",
+ "at": "2026-08-25 16:54 UTC",
+ "run_id": "32874715243",
  "results": [
   {
    "name": "NTTドコモ",
    "ok": true,
    "domain": "docomo.ne.jp",
-   "used_removebg": true,
-   "from_cache": false,
-   "error": "",
-   "deleted": false
-  },
-  {
-   "name": "dアカウント",
-   "ok": true,
-   "domain": "tanocchi-shisanunyo.com",
-   "used_removebg": true,
-   "from_cache": false,
-   "error": "",
-   "deleted": false
-  },
-  {
-   "name": "dポイント",
-   "ok": true,
-   "domain": "atgift.jp",
-   "used_removebg": true,
-   "from_cache": false,
-   "error": "",
-   "deleted": false
-  },
-  {
-   "name": "ドコモの銀行",
-   "ok": true,
-   "domain": "prtimes.jp",
    "used_removebg": true,
    "from_cache": false,
    "error": "",
