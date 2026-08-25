@@ -160,6 +160,8 @@ def main() -> int:
 
     (DOCS / "last_run.json").write_text(json.dumps({
         "at": time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime()),
+        # ビューワーが「自分の実行の結果が反映されたか」を突合するための識別子
+        "run_id": os.environ.get("GITHUB_RUN_ID", ""),
         "results": [{
             "name": r.company,
             "ok": r.ok,

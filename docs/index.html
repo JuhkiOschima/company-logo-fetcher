@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
+<!-- トークンを扱うページなので、通信先を自サイトと GitHub API に限定する(多層防御) -->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' data:; connect-src 'self' https://api.github.com; style-src 'unsafe-inline'; script-src 'unsafe-inline'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>企業ロゴストック</title>
 <style>
   :root { --blue: #005fb8; --text: #222; --sub: #666; --line: #d9d9d9; --bg: #f5f6f8; }
@@ -243,66 +246,89 @@ async function dispatchWorkflow(inputs) {
   return { ok: false, msg: `実行依頼に失敗しました (HTTP ${res.status})` };
 }
 
-async function waitForRun(sinceMs) {
-  // 依頼直後の run を特定し、完了まで見守る(トークン付きなのでレート制限の心配なし)
-  for (let i = 0; i < 90; i++) {  // 最大 ~7.5分
+async function listRunIds() {
+  const res = await fetch(
+    repoApi + "/actions/workflows/fetch-logos.yml/runs?per_page=10&_=" + Date.now(),
+    { headers: ghHeaders() });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return (data.workflow_runs || []).map((r) => r.id);
+}
+
+async function findNewRunId(beforeIds) {
+  // クライアントの時計には頼らず、「依頼前に存在しなかった run」を自分の run とみなす
+  for (let i = 0; i < 24; i++) {  // 最大 ~2分
     await sleep(5000);
     try {
-      const res = await fetch(
-        repoApi + "/actions/workflows/fetch-logos.yml/runs?per_page=5&_=" + Date.now(),
-        { headers: ghHeaders() });
-      if (!res.ok) continue;
-      const data = await res.json();
-      const run = (data.workflow_runs || []).find(
-        (r) => new Date(r.created_at).getTime() >= sinceMs - 60000);
-      if (!run) { setFetchStatus("実行待ち…(GitHub側でキュー中)", "working"); continue; }
-      if (run.status !== "completed") {
-        setFetchStatus(`取得を実行中…(${run.status === "queued" ? "順番待ち" : "処理中"})`, "working");
-        continue;
+      const ids = await listRunIds();
+      if (ids) {
+        const mine = ids.find((id) => !beforeIds.includes(id));
+        if (mine) return mine;
       }
-      return run;
+    } catch (e) { /* 一時的な通信エラーは次の周回で拾う */ }
+    setFetchStatus("実行待ち…(GitHub側でキュー中)", "working");
+  }
+  return null;
+}
+
+async function waitForRunById(runId) {
+  // run ID を固定して見守る(他の人の実行と取り違えない)
+  for (let i = 0; i < 120; i++) {  // 最大 ~10分(順番待ちを含む)
+    await sleep(5000);
+    try {
+      const res = await fetch(repoApi + "/actions/runs/" + runId + "?_=" + Date.now(),
+                              { headers: ghHeaders() });
+      if (!res.ok) continue;
+      const run = await res.json();
+      if (run.status === "completed") return run;
+      setFetchStatus(run.status === "queued"
+        ? "順番待ち…(他の人の取得が実行中です)" : "取得を実行中…", "working");
     } catch (e) { /* 一時的な通信エラーは次の周回で拾う */ }
   }
   return null;
 }
 
-async function waitForPages(prevAt) {
-  // コミット後、Pages への反映(再ビルド)には少し時間がかかる
+async function waitForPages(runId) {
+  // 「自分の run の結果」が Pages に反映されたことを last_run.json の run_id で確認する
   for (let i = 0; i < 36; i++) {  // 最大 ~3分
     await sleep(5000);
     try {
       const lr = await loadJson("last_run.json");
-      if (lr.at !== prevAt) return lr;
+      if (String(lr.run_id || "") === String(runId)) return lr;
     } catch (e) { /* まだ反映されていない */ }
     setFetchStatus("完了。このページへの反映を待っています…", "working");
   }
   return null;
 }
 
+let fetchBusy = false;  // 多重実行(取得中のやり直し等)を防ぐ
+
 async function runFetch(inputs, confirmMsg) {
+  if (fetchBusy) { setFetchStatus("実行中です。完了までお待ちください。", "working"); return; }
   if (!getToken()) { toggleTokenBox(true); setFetchStatus("先にトークンを設定してください。", "ng"); return; }
   if (confirmMsg && !confirm(confirmMsg)) return;
+  fetchBusy = true;
   $("fetchBtn").disabled = true;
   try {
-    let prevAt = "";
-    try { prevAt = (await loadJson("last_run.json")).at; } catch (e) { /* 初回 */ }
+    const before = (await listRunIds().catch(() => null)) || [];
     setFetchStatus("実行を依頼しています…", "working");
     const d = await dispatchWorkflow(inputs);
     if (!d.ok) { setFetchStatus(d.msg, "ng"); if (d.msg.includes("トークン")) toggleTokenBox(true); return; }
-    const since = Date.now();
-    setFetchStatus("実行待ち…", "working");
-    const run = await waitForRun(since);
-    if (!run) { setFetchStatus("状況を確認できませんでした。しばらくしてリロードしてください。", "ng"); return; }
+    const runId = await findNewRunId(before);
+    if (!runId) { setFetchStatus("実行を確認できませんでした。しばらくしてリロードしてください。", "ng"); return; }
+    const run = await waitForRunById(runId);
+    if (!run) { setFetchStatus("完了を確認できませんでした。しばらくしてリロードしてください。", "ng"); return; }
     if (run.conclusion !== "success") {
       setFetchStatus(`実行が失敗しました(${run.conclusion})。`, "ng");
       return;
     }
-    const lr = await waitForPages(prevAt);
+    const lr = await waitForPages(runId);
     await reloadData();
     if (inputs.companies !== undefined && $("names")) $("names").value = "";
     setFetchStatus(lr ? "完了しました。一覧を更新しました。"
                       : "完了しました(反映に時間がかかっています。少し待ってリロードしてください)。", "ok");
   } finally {
+    fetchBusy = false;
     $("fetchBtn").disabled = false;
   }
 }
