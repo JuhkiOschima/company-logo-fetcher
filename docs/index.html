@@ -7,6 +7,7 @@
 <!-- トークンを扱うページなので、通信先を自サイトと GitHub API に限定する(多層防御) -->
 <meta http-equiv="Content-Security-Policy"
       content="default-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://api.github.com; style-src 'unsafe-inline'; script-src 'unsafe-inline'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%A2%3C/text%3E%3C/svg%3E">
 <title>企業ロゴストック</title>
 <style>
   :root { --blue: #005fb8; --text: #222; --sub: #666; --line: #d9d9d9; --bg: #f5f6f8; }
@@ -30,6 +31,7 @@
                  text-decoration: none; display: inline-block; }
   .btn.primary, button.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
   button.danger { background: #b00020; border-color: #b00020; color: #fff; }
+  button.warn { background: #b45300; border-color: #b45300; color: #fff; }
   button:disabled { opacity: .5; cursor: default; }
   textarea { width: 100%; min-height: 76px; font: inherit; padding: 10px;
              border: 1px solid var(--line); border-radius: 8px; resize: vertical; }
@@ -104,7 +106,7 @@
   <section id="todaySection" style="display:none">
     <div class="row" style="justify-content: space-between; margin: 0 0 4px;">
       <h2 style="margin:0">今回の出力結果(<span id="todayCount">0</span>社)</h2>
-      <button id="todayRetry">まとめてやり直し</button>
+      <button id="todayRetry" class="warn">まとめてやり直し</button>
       <button id="todayPptx" class="primary">PPTXに出力</button>
     </div>
     <div class="note" style="margin-bottom:10px">
@@ -118,7 +120,7 @@
     <div class="row" style="justify-content: space-between; margin: 0 0 4px;">
       <h2 style="margin:0">ストック(<span id="count">0</span>社)</h2>
       <span class="row" style="gap:6px">
-        <button id="stockRetry">まとめてやり直し</button>
+        <button id="stockRetry" class="warn">まとめてやり直し</button>
         <button id="stockPptx" class="primary">PPTXに出力</button>
         <button id="stockDelete" class="danger">ストックから削除</button>
         <input id="searchBox" type="search" placeholder="🔍 企業名で絞り込み">

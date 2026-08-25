@@ -13,8 +13,8 @@
 ## 設計思想
 
 タグの意味:
-- `[unit test]` — pytest で自動検証できる(値・分岐・境界条件など決定的なロジック)
-- `[qcheck]` — 見た目・文章・UX など、unit test では評価できない品質。人手または専用チェックが必要
+- `[unit test]` — pytest で自動検証できる(値・分岐・境界条件など決定的なロジック)。実行: `python -m pytest`
+- `[qcheck]` — 見た目・文章・UX など、unit test では評価できない品質。[tests/ui.qcheck.md](tests/ui.qcheck.md) / [tests/ux.qcheck.md](tests/ux.qcheck.md) に手順と実施結果を記録
 - `[philosophy]` — いずれの自動テストでも検証できない、方針・トレードオフ判断
 
 ### 全体ルール
@@ -47,23 +47,23 @@
 
 **背景透過(remove.bg)**
 - 取得画像が既に透過済みなら remove.bg を呼ばずスキップする(クレジット節約) `[unit test]`
-- 新規取得ではAPI消費見込みを事前提示し、確認を取る `[qcheck]`(文言・UXの妥当性)
+- 新規取得ではAPI消費見込みを事前提示し、確認を取る `[qcheck]`(文言・UXの妥当性。QC-UX-01, [tests/ux.qcheck.md](tests/ux.qcheck.md))
 
 **トリミング**
 - アルファ値がしきい値を超える画素の外接矩形を求め、長辺比一定の余白を足して切り出す `[unit test]`
 - 出力の長辺は上限を超える場合のみ縮小する(拡大はしない) `[unit test]`
 
 **クリップボード連携(exe/GUI版)**
-- PowerPoint への貼り付けは **PNG形式 + CF_HDROP(ファイル) + CF_DIB(白背景の保険)** の組み合わせを使う。**CF_DIBV5 は絶対に載せない**(PowerPointがそちらを優先しアルファを破棄・黒塗りになることを実機検証済み) `[qcheck]`(実機のPowerPoint COM自動化で検証、pytestの対象外)
+- PowerPoint への貼り付けは **PNG形式 + CF_HDROP(ファイル) + CF_DIB(白背景の保険)** の組み合わせを使う。**CF_DIBV5 は絶対に載せない**(PowerPointがそちらを優先しアルファを破棄・黒塗りになることを実機検証済み) `[qcheck]`(実機のPowerPoint COM自動化で検証、pytestの対象外。QC-UI-09, [tests/ui.qcheck.md](tests/ui.qcheck.md))
 
 **PPTX生成(まとめ出力)**
-- 全ロゴを1スライドにグリッド配置し、各ロゴの下に企業名を添える。列数は件数に応じて自動決定する `[unit test]`(レイアウト計算)+ `[qcheck]`(実際にPowerPointで開けること)
+- 全ロゴを1スライドにグリッド配置し、各ロゴの下に企業名を添える。列数は件数に応じて自動決定する `[unit test]`(レイアウト計算)+ `[qcheck]`(実際にPowerPointで開けること。QC-UI-08, [tests/ui.qcheck.md](tests/ui.qcheck.md))
 - ブラウザ内生成(GitHub版)の場合、スライドの relationships には必ず slideLayout への関連付け(rId1)を含める。欠くとPowerPointが開けない `[philosophy]`(ロジックが `docs/index.html` のJSにあり、今回導入したpytestの対象外。実機のPowerPoint COM自動化で検証済み)
 
 **GitHub版(取得エンジン・ストック・ビューワー)**
 - 取得は GitHub Actions(workflow_dispatch)。APIキーは Secrets に1セットのみ(利用者側のキー設定は不要) `[philosophy]`
 - push競合時は「マージ→PNG合併結果から index/pptx を再生成→積み増して再push」で解消する。競合によってAPI消費済みの取得結果を失わない `[unit test]`(rebuild-onlyの再生成ロジック)+ `[philosophy]`(方針)
-- ビューワーは「自分が依頼した実行」を run_id で確定してから見守る。時刻の前後関係やクライアント時計には依存しない `[qcheck]`(JS、pytest対象外)
+- ビューワーは「自分が依頼した実行」を run_id で確定してから見守る。時刻の前後関係やクライアント時計には依存しない `[qcheck]`(JS、pytest対象外。QC-UX-09, [tests/ux.qcheck.md](tests/ux.qcheck.md))
 - 画像URLには内容ハッシュ(`?v=`)を付与し、やり直し後もブラウザ/CDNキャッシュで古い画像が表示され続けないようにする `[unit test]`(ハッシュ生成側)
 
 ---
@@ -111,7 +111,7 @@ APIキーの扱い: exe/Web共有版は利用者(所有者)各自のキー、Git
 │   ├── index.html              # 検索・コピー・PPTX出力UI
 │   └── logos/                  # 蓄積されたロゴ画像
 ├── .github/workflows/          # Actions定義
-├── tests/                      # pytest(このドキュメントの[unit test]項目に対応)
+├── tests/                      # pytest([unit test]) + ui/ux.qcheck.md([qcheck]の手順書)
 └── ci-cache/                   # GitHub版の検索キャッシュ(永続)
 ```
 
