@@ -156,7 +156,9 @@ LogoToolCLI.exe            (Python版: .venv\Scripts\python src\main.py)
 
 ## 開発者向け
 
-- 構成・設計は [VISION.md](VISION.md) を参照
+- 構成・設計は [VISION.md](VISION.md) を参照(設計思想には `[unit test]` / `[qcheck]` / `[philosophy]` のタグ付き)
+- **unitテスト**: `pip install -r requirements-dev.txt` の後 `python -m pytest`(APIを一切消費しません。ネットワーク呼び出しはすべてモック)
+  - テスト状況は [PROGRESS.md](PROGRESS.md) に記載
 - オフライン自己テスト: `python tools\selftest_pipeline.py`(APIを消費しません)
 - クリップボード検証: `python tools\pptx_paste_matrix.py`(PowerPoint を自動操作して形式ごとの透過保持を機械判定)
 - exe ビルド: `python tools\build_exe.py`

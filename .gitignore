@@ -6,6 +6,7 @@ cache/
 output/
 .venv/
 __pycache__/
+.pytest_cache/
 *.pyc
 dist/
 *.tmp
