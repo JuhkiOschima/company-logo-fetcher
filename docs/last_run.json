@@ -1,11 +1,11 @@
 {
- "at": "2026-08-25 16:54 UTC",
- "run_id": "32874715243",
+ "at": "2026-08-25 16:58 UTC",
+ "run_id": "32875129079",
  "results": [
   {
    "name": "NTTドコモ",
    "ok": true,
-   "domain": "docomo.ne.jp",
+   "domain": "japan.cnet.com",
    "used_removebg": true,
    "from_cache": false,
    "error": "",
