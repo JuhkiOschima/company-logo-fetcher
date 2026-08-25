@@ -25,8 +25,13 @@
                  border: 1px solid var(--line); background: #fff; color: var(--text);
                  text-decoration: none; display: inline-block; }
   .btn.primary, button.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
-  #searchBox { width: 280px; font: inherit; padding: 8px 12px;
-               border: 1px solid var(--line); border-radius: 8px; }
+  button:disabled { opacity: .5; cursor: default; }
+  textarea { width: 100%; min-height: 76px; font: inherit; padding: 10px;
+             border: 1px solid var(--line); border-radius: 8px; resize: vertical; }
+  textarea:focus { outline: 2px solid var(--blue); border-color: transparent; }
+  input[type="password"], input[type="search"] { font: inherit; padding: 8px 12px;
+             border: 1px solid var(--line); border-radius: 8px; }
+  #searchBox { width: 280px; }
   #grid { display: grid; gap: 14px;
           grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
   .card { background: #fff; border: 1px solid var(--line); border-radius: 10px;
@@ -40,9 +45,14 @@
   .card .row { gap: 6px; }
   .card button, .card .btn { padding: 5px 12px; font-size: 13px; }
   #empty { color: var(--sub); padding: 8px 2px; display: none; }
+  #fetchStatus { margin-top: 10px; font-size: 14px; }
   #lastRun { font-size: 13px; line-height: 1.9; margin-top: 8px; }
-  .ok { color: #107c10; } .ng { color: #b00020; }
+  .ok { color: #107c10; } .ng { color: #b00020; } .working { color: var(--blue); }
+  #tokenBox { border: 1px solid var(--line); border-radius: 8px; background: #f8fafc;
+              padding: 12px 14px; margin-top: 10px; font-size: 13px; line-height: 1.8; }
+  #tokenBox ol { margin: 6px 0; padding-left: 20px; }
   footer { color: var(--sub); font-size: 12px; margin-top: 8px; }
+  a { color: var(--blue); }
 </style>
 </head>
 <body>
@@ -53,10 +63,32 @@
 <main>
   <section>
     <h2>① ロゴを取得する</h2>
-    <div class="row">
-      <a class="btn primary" id="fetchLink" href="#" target="_blank" rel="noopener">取得画面を開く(GitHub Actions)</a>
-      <span class="hint">開いた画面で「Run workflow」→ 企業名を入力 → 緑のボタン。1〜2分後にこのページへ反映されます(要リロード)。</span>
+    <div class="hint">企業名を入力してください(改行・「、」・「/」・空白区切りで複数可、最大20社)。
+      取得済みの企業はストックが使われ、APIを消費しません。</div>
+    <textarea id="names" placeholder="例: トヨタ自動車、ソニーグループ、NTTデータ"></textarea>
+    <div class="row" style="margin-top:8px">
+      <button class="primary" id="fetchBtn">ロゴを取得</button>
+      <span class="hint" id="tokenState"></span>
     </div>
+    <div id="tokenBox" style="display:none">
+      <strong>初回のみ: GitHubトークンの設定(1〜2分)</strong><br>
+      取得の実行にはあなたのGitHubアカウントの権限が必要です。トークンはこのブラウザ内にだけ保存され、外部には送られません(GitHubへの認証のみに使用)。
+      <ol>
+        <li><a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">トークン作成ページを開く</a></li>
+        <li>Repository access → <strong>Only select repositories</strong> → <code>company-logo-fetcher</code> を選択</li>
+        <li>Permissions → Repository permissions → <strong>Actions</strong> を <strong>Read and write</strong> に</li>
+        <li>「Generate token」を押し、表示されたトークンをコピーして下に貼り付け</li>
+      </ol>
+      <div class="row">
+        <input type="password" id="tokenInput" placeholder="github_pat_..." style="flex:1; min-width:240px">
+        <button id="tokenSave">保存</button>
+        <button id="tokenClear">削除</button>
+      </div>
+      <div class="hint" style="margin-top:6px">
+        ※ リポジトリへの招待(コラボレーター)を受けていない場合は、先に管理者へ依頼してください。
+      </div>
+    </div>
+    <div id="fetchStatus"></div>
     <div id="lastRun"></div>
   </section>
 
@@ -76,9 +108,12 @@
 <script>
 "use strict";
 const $ = (id) => document.getElementById(id);
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 let logos = [];
 let repoUrl = "";
+let repoApi = "";
 let loadFailed = false;
+const TOKEN_KEY = "logoStockToken";
 const canJsCopy = window.isSecureContext && navigator.clipboard && window.ClipboardItem;
 
 function logoUrl(name) { return "logos/" + encodeURIComponent(name) + ".png"; }
@@ -112,12 +147,10 @@ function render() {
     }
     const dl = document.createElement("a"); dl.className = "btn"; dl.textContent = "ダウンロード";
     dl.href = logoUrl(item.name); dl.download = item.name + ".png"; row.appendChild(dl);
-    if (repoUrl) {
-      const rt = document.createElement("a"); rt.className = "btn"; rt.textContent = "やり直し";
-      rt.href = repoUrl + "/actions/workflows/fetch-logos.yml"; rt.target = "_blank"; rt.rel = "noopener";
-      rt.title = "取得画面の「retry」欄にこの企業名を入れて実行すると、別の候補から取り直します";
-      rt.onclick = () => { navigator.clipboard?.writeText(item.name).catch(() => {}); };
-      row.appendChild(rt);
+    if (repoApi) {
+      const rt = document.createElement("button"); rt.textContent = "やり直し";
+      rt.title = "別の検索候補から取り直します(API枠を消費することがあります)";
+      rt.onclick = () => retryLogo(item.name); row.appendChild(rt);
     }
     card.appendChild(row);
     grid.appendChild(card);
@@ -135,8 +168,7 @@ async function copyPng(name, btn) {
     return r.blob();
   });
   try {
-    // Safari はクリック操作の直後に同期的に write する必要があるため、
-    // blob の Promise をそのまま ClipboardItem に渡す
+    // Safari はクリック操作の直後に同期的に write する必要がある(Promise を渡す)
     await navigator.clipboard.write([new ClipboardItem({ "image/png": blobPromise })]);
   } catch (e) {
     try {
@@ -156,18 +188,150 @@ async function loadJson(path) {
   return res.json();
 }
 
-async function init() {
-  try {
-    const conf = await loadJson("config.json");
-    repoUrl = conf.repo || "";
-  } catch (e) { /* 設定なしでも閲覧は可能 */ }
-  if (repoUrl) {
-    $("fetchLink").href = repoUrl + "/actions/workflows/fetch-logos.yml";
+// --- GitHub API(アプリ内からの取得実行) ---
+
+function getToken() { return localStorage.getItem(TOKEN_KEY) || ""; }
+
+function ghHeaders() {
+  const h = { Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" };
+  const t = getToken();
+  if (t) h.Authorization = "Bearer " + t;
+  return h;
+}
+
+function updateTokenState() {
+  const state = $("tokenState");
+  if (!repoApi) { state.textContent = ""; return; }
+  if (getToken()) {
+    state.innerHTML = "";
+    state.append("トークン設定済み ✓ ");
+    const a = document.createElement("a"); a.href = "#"; a.textContent = "変更";
+    a.onclick = (e) => { e.preventDefault(); toggleTokenBox(true); };
+    state.append(a);
   } else {
-    $("fetchLink").style.display = "none";
+    state.innerHTML = "";
+    state.append("初回はGitHubトークンの設定が必要です ");
+    const a = document.createElement("a"); a.href = "#"; a.textContent = "設定する";
+    a.onclick = (e) => { e.preventDefault(); toggleTokenBox(true); };
+    state.append(a);
   }
+}
+
+function toggleTokenBox(show) { $("tokenBox").style.display = show ? "block" : "none"; }
+
+function setFetchStatus(text, cls) {
+  const el = $("fetchStatus");
+  el.textContent = text;
+  el.className = cls || "";
+}
+
+function estimateCount(text) {
+  return text.split(/[\n\r\t,、，;；/／|｜ 　]+/).filter(Boolean).length;
+}
+
+async function dispatchWorkflow(inputs) {
+  const res = await fetch(repoApi + "/actions/workflows/fetch-logos.yml/dispatches", {
+    method: "POST",
+    headers: { ...ghHeaders(), "Content-Type": "application/json" },
+    body: JSON.stringify({ ref: "main", inputs }),
+  });
+  if (res.status === 204) return { ok: true };
+  if (res.status === 401) return { ok: false, msg: "トークンが無効です。設定し直してください。" };
+  if (res.status === 403 || res.status === 404) {
+    return { ok: false, msg: "権限がありません。トークンの設定(Actions: Read and write / 対象リポジトリ)と、コラボレーター招待済みかを確認してください。" };
+  }
+  return { ok: false, msg: `実行依頼に失敗しました (HTTP ${res.status})` };
+}
+
+async function waitForRun(sinceMs) {
+  // 依頼直後の run を特定し、完了まで見守る(トークン付きなのでレート制限の心配なし)
+  for (let i = 0; i < 90; i++) {  // 最大 ~7.5分
+    await sleep(5000);
+    try {
+      const res = await fetch(
+        repoApi + "/actions/workflows/fetch-logos.yml/runs?per_page=5&_=" + Date.now(),
+        { headers: ghHeaders() });
+      if (!res.ok) continue;
+      const data = await res.json();
+      const run = (data.workflow_runs || []).find(
+        (r) => new Date(r.created_at).getTime() >= sinceMs - 60000);
+      if (!run) { setFetchStatus("実行待ち…(GitHub側でキュー中)", "working"); continue; }
+      if (run.status !== "completed") {
+        setFetchStatus(`取得を実行中…(${run.status === "queued" ? "順番待ち" : "処理中"})`, "working");
+        continue;
+      }
+      return run;
+    } catch (e) { /* 一時的な通信エラーは次の周回で拾う */ }
+  }
+  return null;
+}
+
+async function waitForPages(prevAt) {
+  // コミット後、Pages への反映(再ビルド)には少し時間がかかる
+  for (let i = 0; i < 36; i++) {  // 最大 ~3分
+    await sleep(5000);
+    try {
+      const lr = await loadJson("last_run.json");
+      if (lr.at !== prevAt) return lr;
+    } catch (e) { /* まだ反映されていない */ }
+    setFetchStatus("完了。このページへの反映を待っています…", "working");
+  }
+  return null;
+}
+
+async function runFetch(inputs, confirmMsg) {
+  if (!getToken()) { toggleTokenBox(true); setFetchStatus("先にトークンを設定してください。", "ng"); return; }
+  if (confirmMsg && !confirm(confirmMsg)) return;
+  $("fetchBtn").disabled = true;
+  try {
+    let prevAt = "";
+    try { prevAt = (await loadJson("last_run.json")).at; } catch (e) { /* 初回 */ }
+    setFetchStatus("実行を依頼しています…", "working");
+    const d = await dispatchWorkflow(inputs);
+    if (!d.ok) { setFetchStatus(d.msg, "ng"); if (d.msg.includes("トークン")) toggleTokenBox(true); return; }
+    const since = Date.now();
+    setFetchStatus("実行待ち…", "working");
+    const run = await waitForRun(since);
+    if (!run) { setFetchStatus("状況を確認できませんでした。しばらくしてリロードしてください。", "ng"); return; }
+    if (run.conclusion !== "success") {
+      setFetchStatus(`実行が失敗しました(${run.conclusion})。`, "ng");
+      return;
+    }
+    const lr = await waitForPages(prevAt);
+    await reloadData();
+    if (inputs.companies !== undefined && $("names")) $("names").value = "";
+    setFetchStatus(lr ? "完了しました。一覧を更新しました。"
+                      : "完了しました(反映に時間がかかっています。少し待ってリロードしてください)。", "ok");
+  } finally {
+    $("fetchBtn").disabled = false;
+  }
+}
+
+async function retryLogo(name) {
+  await runFetch({ retry: name },
+    `「${name}」を別の検索候補から取り直します。API枠を消費することがあります。よろしいですか?`);
+}
+
+// --- データ読み込み ---
+
+function renderLastRun(lr) {
+  const box = $("lastRun"); box.textContent = "";
+  if (!lr || !lr.results || !lr.results.length) return;
+  const head = document.createElement("div"); head.className = "hint";
+  head.textContent = `直近の取得(${lr.at}):`;
+  box.appendChild(head);
+  for (const r of lr.results.slice(0, 20)) {
+    const line = document.createElement("div");
+    line.className = r.ok ? "ok" : "ng";
+    line.textContent = `${r.name}: ${r.ok ? "成功" + (r.domain ? `(${r.domain})` : "") : "失敗 - " + r.error}`;
+    box.appendChild(line);
+  }
+}
+
+async function reloadData() {
   try {
     logos = await loadJson("index.json");
+    loadFailed = false;
   } catch (e) { logos = []; loadFailed = true; }
   render();
   try {
@@ -182,22 +346,46 @@ async function init() {
     if (parts.length) $("quota").textContent =
       `今月のAPI残数(全員共有): ${parts.join(" | ")}(${q.updated} 時点)`;
   } catch (e) { /* 表示できなくても閲覧には影響しない */ }
+  try { renderLastRun(await loadJson("last_run.json")); } catch (e) { /* まだ履歴がない */ }
+}
+
+async function init() {
   try {
-    const lr = await loadJson("last_run.json");
-    const box = $("lastRun");
-    const head = document.createElement("div"); head.className = "hint";
-    head.textContent = `直近の取得(${lr.at}):`;
-    box.appendChild(head);
-    for (const r of lr.results.slice(0, 20)) {
-      const line = document.createElement("div");
-      line.className = r.ok ? "ok" : "ng";
-      line.textContent = `${r.name}: ${r.ok ? "成功" + (r.domain ? `(${r.domain})` : "") : "失敗 - " + r.error}`;
-      box.appendChild(line);
+    const conf = await loadJson("config.json");
+    repoUrl = conf.repo || "";
+    if (repoUrl.startsWith("https://github.com/")) {
+      repoApi = "https://api.github.com/repos/" + repoUrl.slice("https://github.com/".length);
     }
-  } catch (e) { /* まだ実行履歴がない */ }
+  } catch (e) { /* 設定なしでも閲覧は可能 */ }
+  updateTokenState();
+  if (!repoApi) $("fetchBtn").disabled = true;
+  await reloadData();
 }
 
 $("searchBox").addEventListener("input", render);
+$("fetchBtn").onclick = () => {
+  const text = $("names").value.trim();
+  if (!text) return;
+  const n = estimateCount(text);
+  if (n > 20) { setFetchStatus(`一度に取得できるのは20社までです(${n}社を検出)。分けて実行してください。`, "ng"); return; }
+  runFetch({ companies: text },
+    `${n}社前後を処理します。取得済みの企業はAPIを消費しません。よろしいですか?`);
+};
+$("tokenSave").onclick = () => {
+  const v = $("tokenInput").value.trim();
+  if (!v) return;
+  localStorage.setItem(TOKEN_KEY, v);
+  $("tokenInput").value = "";
+  toggleTokenBox(false);
+  updateTokenState();
+  setFetchStatus("トークンを保存しました(このブラウザにのみ保存されます)。", "ok");
+};
+$("tokenClear").onclick = () => {
+  localStorage.removeItem(TOKEN_KEY);
+  $("tokenInput").value = "";
+  updateTokenState();
+  setFetchStatus("トークンを削除しました。", "");
+};
 init();
 </script>
 </body>
