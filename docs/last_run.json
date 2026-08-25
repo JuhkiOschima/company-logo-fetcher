@@ -1,14 +1,14 @@
 {
- "at": "2026-08-25 14:54 UTC",
- "run_id": "32862401078",
+ "at": "2026-08-25 15:42 UTC",
+ "run_id": "32867399547",
  "results": [
   {
-   "name": "信越化学工業",
-   "ok": false,
-   "domain": "",
-   "used_removebg": false,
+   "name": "SyncMe",
+   "ok": true,
+   "domain": "prtimes.jp",
+   "used_removebg": true,
    "from_cache": false,
-   "error": "RemoveBgError: remove.bg がエラーを返しました (HTTP 400): Invalid file type",
+   "error": "",
    "deleted": false
   }
  ]
