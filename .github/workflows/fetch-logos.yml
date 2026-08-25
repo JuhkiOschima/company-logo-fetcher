@@ -4,15 +4,15 @@ on:
   workflow_dispatch:
     inputs:
       companies:
-        description: '企業名(改行・「、」・カンマ・/ 区切りで複数可、最大20社)'
+        description: '企業名・サービス名・アプリ名(改行・「、」・カンマ・/ 区切りで複数可、最大20件)'
         required: false
         type: string
       retry:
-        description: 'やり直す企業名(複数可。別の検索候補から取り直します)'
+        description: 'やり直す名前(複数可。別の検索候補から取り直します)'
         required: false
         type: string
       delete:
-        description: 'ストックから削除する企業名(複数可)'
+        description: 'ストックから削除する名前(複数可)'
         required: false
         type: string
 

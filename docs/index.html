@@ -8,7 +8,7 @@
 <meta http-equiv="Content-Security-Policy"
       content="default-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://api.github.com; style-src 'unsafe-inline'; script-src 'unsafe-inline'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%A2%3C/text%3E%3C/svg%3E">
-<title>企業ロゴストック</title>
+<title>ロゴストック</title>
 <style>
   :root { --blue: #005fb8; --text: #222; --sub: #666; --line: #d9d9d9; --bg: #f5f6f8; }
   * { box-sizing: border-box; }
@@ -43,9 +43,11 @@
           grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
   .card { background: #fff; border: 1px solid var(--line); border-radius: 10px;
           padding: 12px; position: relative; }
-  .card input.selbox { position: absolute; right: 10px; bottom: 14px;
-                       width: 17px; height: 17px; cursor: pointer; }
-  .card .row { padding-right: 28px; }
+  .card label.selbox { position: absolute; right: 10px; bottom: 12px;
+                       display: flex; align-items: center; gap: 4px;
+                       font-size: 12px; color: var(--sub); cursor: pointer; }
+  .card label.selbox input { width: 17px; height: 17px; cursor: pointer; margin: 0; }
+  .card .row { padding-right: 60px; }
   .thumb { height: 120px; display: flex; align-items: center; justify-content: center;
            border-radius: 6px; border: 1px solid #eee; cursor: pointer;
            background: repeating-conic-gradient(#eceff3 0% 25%, #fff 0% 50%) 0 0/20px 20px; }
@@ -55,7 +57,7 @@
   .card .row { gap: 6px; }
   .card button, .card .btn { padding: 5px 12px; font-size: 13px; }
   #stockEmpty { color: var(--sub); padding: 8px 2px; display: none; }
-  #fetchStatus { margin-top: 10px; font-size: 14px; }
+  .fetchStatus { margin-top: 10px; font-size: 14px; }
   .ok { color: #107c10; } .ng { color: #b00020; } .working { color: var(--blue); }
   #tokenBox { border: 1px solid var(--line); border-radius: 8px; background: #f8fafc;
               padding: 12px 14px; margin-top: 10px; font-size: 13px; line-height: 1.8; }
@@ -65,18 +67,19 @@
 </head>
 <body>
 <header>
-  <h1>企業ロゴストック</h1>
+  <h1>ロゴストック</h1>
   <span id="quota"></span>
 </header>
 <main>
   <section>
     <h2>ロゴを取得する</h2>
     <div class="hint">
-      企業名もしくは企業リストを記入してください。<br>
-      ※最大20社まで出力が可能です<br>
-      ※自動的に個社検索を行うため、改行・「、」・「/」・空白など、区切りの形式は自由です
+      企業名・サービス名・アプリ名(またはそのリスト)を記入してください。<br>
+      ※企業のロゴだけでなく、サービス・アプリのロゴも取得できます<br>
+      ※最大20件まで出力が可能です<br>
+      ※自動的に1件ずつ検索を行うため、改行・「、」・「/」・空白など、区切りの形式は自由です
     </div>
-    <textarea id="names" placeholder="例: トヨタ自動車、ソニーグループ、NTTデータ"></textarea>
+    <textarea id="names" placeholder="例: トヨタ自動車、Slack、SyncMe"></textarea>
     <div class="row" style="margin-top:8px">
       <button class="primary" id="fetchBtn">ロゴを取得</button>
       <span class="hint" id="tokenState"></span>
@@ -100,38 +103,43 @@
         <button id="tokenClear">削除</button>
       </div>
     </div>
-    <div id="fetchStatus"></div>
+    <div id="fetchStatus" class="fetchStatus"></div>
   </section>
 
   <section id="todaySection" style="display:none">
     <div class="row" style="justify-content: space-between; margin: 0 0 4px;">
-      <h2 style="margin:0">今回の出力結果(<span id="todayCount">0</span>社)</h2>
-      <button id="todayRetry" class="warn">まとめてやり直し</button>
-      <button id="todayPptx" class="primary">PPTXに出力</button>
-    </div>
-    <div class="note" style="margin-bottom:10px">
-      ※個別:各ロゴの「コピー」ボタンを押下<br>
-      ※まとめて:ロゴにチェックし、「PPTXに出力」ボタンを押下
-    </div>
-    <div class="grid" id="todayGrid"></div>
-  </section>
-
-  <section>
-    <div class="row" style="justify-content: space-between; margin: 0 0 4px;">
-      <h2 style="margin:0">ストック(<span id="count">0</span>社)</h2>
+      <h2 style="margin:0">今回の出力結果(<span id="todayCount">0</span>件)</h2>
       <span class="row" style="gap:6px">
-        <button id="stockRetry" class="warn">まとめてやり直し</button>
-        <button id="stockPptx" class="primary">PPTXに出力</button>
-        <button id="stockDelete" class="danger">ストックから削除</button>
-        <input id="searchBox" type="search" placeholder="🔍 企業名で絞り込み">
+        <button id="todayRetry" class="warn">まとめてやり直し</button>
+        <button id="todayPptx" class="primary">PPTXに出力</button>
       </span>
     </div>
     <div class="note" style="margin-bottom:10px">
       ※個別:各ロゴの「コピー」ボタンを押下<br>
-      ※まとめて:ロゴにチェックし、「PPTXに出力」ボタンを押下
+      ※まとめて:ロゴの「選択」にチェックし、「PPTXに出力」ボタンを押下
+    </div>
+    <div class="grid" id="todayGrid"></div>
+    <div id="todayStatus" class="fetchStatus"></div>
+  </section>
+
+  <section>
+    <div class="row" style="justify-content: space-between; margin: 0 0 4px;">
+      <h2 style="margin:0">ストック(<span id="count">0</span>件)</h2>
+      <span class="row" style="gap:6px">
+        <button id="stockRetry" class="warn">まとめてやり直し</button>
+        <button id="stockPptx" class="primary">PPTXに出力</button>
+        <button id="stockDelete" class="danger">ストックから削除</button>
+        <input id="searchBox" type="search" placeholder="🔍 名前で絞り込み">
+      </span>
+    </div>
+    <div class="note" style="margin-bottom:10px">
+      ※個別:各ロゴの「コピー」ボタンを押下<br>
+      ※まとめて:ロゴの「選択」にチェックし、「PPTXに出力」「ストックから削除」ボタンを押下<br>
+      ※チェックは「今回の出力結果」と共通です
     </div>
     <div class="grid" id="grid"></div>
     <div id="stockEmpty"></div>
+    <div id="stockStatus" class="fetchStatus"></div>
   </section>
 </main>
 <script>
@@ -145,8 +153,14 @@ let loadFailed = false;
 const TOKEN_KEY = "logoStockToken";
 const SESSION_KEY = "logoStockSession";
 const canJsCopy = window.isSecureContext && navigator.clipboard && window.ClipboardItem;
-const selStock = new Set();
-const selToday = new Set();
+// チェックは「ストック」と「今回の出力結果」で共通(同じロゴが両方に出るため、
+// 片方でチェックしたのにもう片方のボタンが効かない、という取り違えを防ぐ)
+const selected = new Set();
+let selBoxes = [];  // 再描画のたびに作り直す {name, el}
+
+function syncSelBoxes() {
+  for (const b of selBoxes) b.el.checked = selected.has(b.name);
+}
 
 function logoSrc(item) {
   // ?v=画像ハッシュ で「やり直し」後の古いキャッシュ表示を防ぐ
@@ -170,7 +184,7 @@ function removeSessionNames(names) {
     JSON.stringify(sessionNames().filter((n) => !names.includes(n))));
 }
 
-function makeCard(item, selSet) {
+function makeCard(item) {
   const card = document.createElement("div"); card.className = "card";
   const thumb = document.createElement("div"); thumb.className = "thumb";
   const img = document.createElement("img");
@@ -183,11 +197,17 @@ function makeCard(item, selSet) {
   meta.textContent = (item.domain ? "取得元: " + item.domain + " / " : "") + item.date;
   card.appendChild(meta);
   const row = document.createElement("div"); row.className = "row";
+  const label = document.createElement("label"); label.className = "selbox";
+  label.title = "PPTX出力・やり直し・削除の対象に選択";
   const cb = document.createElement("input"); cb.type = "checkbox";
-  cb.className = "selbox"; cb.title = "PPTX出力・削除の対象に選択";
-  cb.checked = selSet.has(item.name);
-  cb.onchange = () => { cb.checked ? selSet.add(item.name) : selSet.delete(item.name); };
-  card.appendChild(cb);
+  cb.checked = selected.has(item.name);
+  cb.onchange = () => {
+    cb.checked ? selected.add(item.name) : selected.delete(item.name);
+    syncSelBoxes();  // もう一方のグリッドの同じロゴにも反映する
+  };
+  const cbText = document.createElement("span"); cbText.textContent = "選択";
+  label.append(cb, cbText); card.appendChild(label);
+  selBoxes.push({ name: item.name, el: cb });
   if (canJsCopy) {
     const cp = document.createElement("button"); cp.className = "primary"; cp.textContent = "コピー";
     cp.onclick = () => copyPng(item, cp); row.appendChild(cp);
@@ -208,16 +228,17 @@ function render() {
   const word = norm($("searchBox").value.trim());
   const grid = $("grid");
   grid.textContent = "";
+  selBoxes = [];
   let shown = 0;
   for (const item of logos) {
     if (word && !norm(item.name).includes(word)) continue;
     shown++;
-    grid.appendChild(makeCard(item, selStock));
+    grid.appendChild(makeCard(item));
   }
   $("count").textContent = String(logos.length);
   $("stockEmpty").textContent = loadFailed
     ? "一覧の読み込みに失敗しました。ページをリロードしてください。"
-    : "一致する企業がありません。「ロゴを取得する」から追加できます。";
+    : "一致するロゴがありません。「ロゴを取得する」から追加できます。";
   $("stockEmpty").style.display = shown ? "none" : "block";
   renderToday();
 }
@@ -229,7 +250,7 @@ function renderToday() {
   $("todayCount").textContent = String(items.length);
   const grid = $("todayGrid");
   grid.textContent = "";
-  for (const item of items) grid.appendChild(makeCard(item, selToday));
+  for (const item of items) grid.appendChild(makeCard(item));
 }
 
 async function copyPng(item, btn) {
@@ -390,7 +411,7 @@ async function exportPptx(selSet, allItems, btn) {
   const targets = names.length ? names : allItems;
   if (!targets.length) return;
   if (!names.length &&
-      !confirm(`チェックが無いため、表示中の ${targets.length} 社すべてを出力します。よろしいですか?`)) return;
+      !confirm(`チェックが無いため、表示中の ${targets.length} 件すべてを出力します。よろしいですか?`)) return;
   const orig = btn.textContent;
   btn.disabled = true; btn.textContent = "生成中…";
   try {
@@ -432,9 +453,23 @@ function updateTokenState() {
 function toggleTokenBox(show) { $("tokenBox").style.display = show ? "block" : "none"; }
 
 function setFetchStatus(text, cls) {
-  const el = $("fetchStatus");
-  el.textContent = text;
-  el.className = cls || "";
+  // 押したボタンの近くに必ず表示が出るよう、全セクションの表示欄を同時に更新する
+  for (const el of document.querySelectorAll(".fetchStatus")) {
+    el.textContent = text;
+    el.className = "fetchStatus " + (cls || "");
+  }
+}
+
+const ACTION_BTNS = ["fetchBtn", "todayRetry", "todayPptx",
+                     "stockRetry", "stockPptx", "stockDelete"];
+
+function setActionsBusy(busy) {
+  for (const id of ACTION_BTNS) {
+    const el = $(id);
+    if (!el) continue;
+    // 実行を伴わない PPTX 出力は、リポジトリ未設定でも使えるままにする
+    el.disabled = busy || (!repoApi && id !== "todayPptx" && id !== "stockPptx");
+  }
 }
 
 function splitNames(text) {
@@ -518,7 +553,7 @@ async function runFetch(inputs, confirmMsg) {
   if (!getToken()) { toggleTokenBox(true); setFetchStatus("先にトークンを設定してください。", "ng"); return; }
   if (confirmMsg && !confirm(confirmMsg)) return;
   fetchBusy = true;
-  $("fetchBtn").disabled = true;
+  setActionsBusy(true);
   try {
     const before = (await listRunIds().catch(() => null)) || [];
     setFetchStatus("実行を依頼しています…", "working");
@@ -539,7 +574,7 @@ async function runFetch(inputs, confirmMsg) {
       const delNames = lr.results.filter((r) => r.deleted && r.ok).map((r) => r.name);
       addSessionNames(okNames);
       removeSessionNames(delNames);
-      for (const n of delNames) { selStock.delete(n); selToday.delete(n); }
+      for (const n of delNames) selected.delete(n);
     }
     await reloadData();
     if (inputs.companies !== undefined && $("names")) $("names").value = "";
@@ -547,7 +582,7 @@ async function runFetch(inputs, confirmMsg) {
                       : "完了しました(反映に時間がかかっています。少し待ってリロードしてください)。", "ok");
   } finally {
     fetchBusy = false;
-    $("fetchBtn").disabled = false;
+    setActionsBusy(false);
   }
 }
 
@@ -556,14 +591,13 @@ async function retryLogo(name) {
     `「${name}」を別の検索候補から取り直します。API枠を消費することがあります。よろしいですか?`);
 }
 
-async function retryBatch(selSet) {
-  const names = [...selSet];
+async function retryBatch(names) {
   if (!names.length) {
     alert("やり直すロゴの「選択」にチェックを入れてください。");
     return;
   }
   await runFetch({ retry: names.join("\n") },
-    `${names.join("、")}(${names.length}社)を別の検索候補から取り直します。\n`
+    `${names.join("、")}(${names.length}件)を別の検索候補から取り直します。\n`
     + "API枠を消費することがあります。よろしいですか?");
 }
 
@@ -598,12 +632,7 @@ async function init() {
     }
   } catch (e) { /* 設定なしでも閲覧は可能 */ }
   updateTokenState();
-  if (!repoApi) {
-    $("fetchBtn").disabled = true;
-    $("stockDelete").disabled = true;
-    $("stockRetry").disabled = true;
-    $("todayRetry").disabled = true;
-  }
+  setActionsBusy(false);  // リポジトリ未設定なら取得系ボタンはここで無効になる
   await reloadData();
 }
 
@@ -614,42 +643,41 @@ $("fetchBtn").onclick = () => {
   if (!text) return;
   const tokens = splitNames(text);
   if (tokens.length > 20) {
-    setFetchStatus(`一度に取得できるのは20社までです(${tokens.length}社を検出)。分けて実行してください。`, "ng");
+    setFetchStatus(`一度に取得できるのは20件までです(${tokens.length}件を検出)。分けて実行してください。`, "ng");
     return;
   }
-  // すでにストックにある企業は明示して確認する
+  // すでにストックにあるものは明示して確認する
   const stockSet = new Set(logos.map((l) => norm(l.name)));
   const dup = tokens.filter((t) => stockSet.has(norm(t)));
-  let msg = `${tokens.length}社を処理します。よろしいですか?`;
+  let msg = `${tokens.length}件を処理します。よろしいですか?`;
   if (dup.length) {
-    msg = `${dup.join("、")}は既にストックにロゴが存在します。再実行しますか?\n(全体で${tokens.length}社を処理します)`;
+    msg = `${dup.join("、")}は既にストックにロゴが存在します。再実行しますか?\n(全体で${tokens.length}件を処理します)`;
   }
   runFetch({ companies: text }, msg);
 };
 
-$("todayPptx").onclick = () => exportPptx(selToday, sessionNames(), $("todayPptx"));
+// 選択されたロゴを、一覧の並び順で取り出す
+function selectedFrom(allNames) {
+  return allNames.filter((n) => selected.has(n));
+}
+
+$("todayPptx").onclick = () => exportPptx(selected, sessionNames(), $("todayPptx"));
 $("stockPptx").onclick = () => {
   const word = norm($("searchBox").value.trim());
   const visible = logos.filter((l) => !word || norm(l.name).includes(word)).map((l) => l.name);
-  exportPptx(selStock, visible, $("stockPptx"));
+  exportPptx(selected, visible, $("stockPptx"));
 };
 $("stockDelete").onclick = () => {
-  const names = logos.map((l) => l.name).filter((n) => selStock.has(n));
+  const names = selectedFrom(logos.map((l) => l.name));
   if (!names.length) {
     alert("削除するロゴの「選択」にチェックを入れてください。");
     return;
   }
   runFetch({ delete: names.join("\n") },
-    `${names.join("、")}(${names.length}社)をストックから削除します。\n元に戻すには再取得が必要です。よろしいですか?`);
+    `${names.join("、")}(${names.length}件)をストックから削除します。\n元に戻すには再取得が必要です。よろしいですか?`);
 };
-$("stockRetry").onclick = () => {
-  const names = logos.map((l) => l.name).filter((n) => selStock.has(n));
-  retryBatch(new Set(names));
-};
-$("todayRetry").onclick = () => {
-  const names = sessionNames().filter((n) => selToday.has(n));
-  retryBatch(new Set(names));
-};
+$("stockRetry").onclick = () => retryBatch(selectedFrom(logos.map((l) => l.name)));
+$("todayRetry").onclick = () => retryBatch(selectedFrom(sessionNames()));
 
 $("tokenSave").onclick = () => {
   const v = $("tokenInput").value.trim();

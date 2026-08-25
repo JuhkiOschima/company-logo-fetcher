@@ -2,9 +2,12 @@
 
 - 縦横比・解像度・ファイル形式・取得元ドメインの複合スコアで並べ替える
 - 扱えない形式(SVG/ICO/AVIF)は候補から除外する
+- remove.bg が受け付けない形式(GIF等)は PNG に変換してから渡す
 """
 
 from __future__ import annotations
+
+import io
 
 from PIL import Image
 
@@ -63,3 +66,27 @@ def test_has_transparency_false_when_below_min_ratio():
     img = Image.new("RGBA", (100, 100), (255, 255, 255, 255))
     img.putpixel((0, 0), (255, 255, 255, 0))  # 1/10000 画素のみ透明
     assert downloader.has_transparency(img, min_ratio=0.02) is False
+
+
+def _downloaded(fmt: str, **save_kwargs) -> downloader.DownloadedImage:
+    buf = io.BytesIO()
+    Image.new("RGB", (40, 20), (10, 20, 30)).save(buf, format=fmt, **save_kwargs)
+    data = buf.getvalue()
+    img = Image.open(io.BytesIO(data))
+    img.load()
+    return downloader.DownloadedImage(
+        candidate=ImageCandidate(url=f"https://a.com/x.{fmt.lower()}"),
+        data=data, image=img)
+
+
+def test_to_removebg_bytes_keeps_supported_format_as_is():
+    d = _downloaded("PNG")
+    assert downloader.to_removebg_bytes(d) is d.data
+
+
+def test_to_removebg_bytes_converts_gif_to_png():
+    # 公式サイトのロゴが GIF のことがあり、そのままでは remove.bg が 400 を返す
+    d = _downloaded("GIF")
+    out = downloader.to_removebg_bytes(d)
+    assert out != d.data
+    assert Image.open(io.BytesIO(out)).format == "PNG"

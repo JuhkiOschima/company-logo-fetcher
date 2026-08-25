@@ -22,6 +22,10 @@ USER_AGENT = "logo-fetcher/0.1"
 # Pillow で開けない形式は remove.bg にも渡せないため候補から外す
 UNSUPPORTED_EXT = {"svg", "ico", "avif"}
 
+# remove.bg がそのまま受け付ける形式。これ以外(GIF・BMP・TIFF など)は
+# Pillow で開けていても 400 Invalid file type になるため、PNG に変換して渡す。
+REMOVEBG_FORMATS = {"JPEG", "PNG", "WEBP"}
+
 # ロゴが置かれていることが多く、信頼できる掲載元
 TRUSTED_DOMAINS = ("wikipedia.org", "wikimedia.org", "prtimes.jp")
 
@@ -127,6 +131,19 @@ def download(candidate: ImageCandidate, *, timeout: int = TIMEOUT) -> Downloaded
         raise DownloadError(f"画像として読み込めません: {e}") from e
 
     return DownloadedImage(candidate=candidate, data=data, image=img)
+
+
+def to_removebg_bytes(downloaded: DownloadedImage) -> bytes:
+    """remove.bg に送れる形式のバイト列にする。
+
+    公式サイトのロゴが GIF で置かれていることがあり、そのまま送ると
+    「Invalid file type」で失敗して「やり直し」が永久に通らなくなる。
+    """
+    if (downloaded.image.format or "").upper() in REMOVEBG_FORMATS:
+        return downloaded.data
+    buf = io.BytesIO()
+    downloaded.image.convert("RGBA").save(buf, format="PNG")
+    return buf.getvalue()
 
 
 def has_transparency(img: Image.Image, *, min_ratio: float = 0.02) -> bool:

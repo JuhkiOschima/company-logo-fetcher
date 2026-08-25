@@ -186,7 +186,9 @@ def process_company(
         _atomic_save_png(transparent, cache.removed_png)
     else:
         png_bytes = bg_remove.remove_background(
-            downloaded.data, cfg.removebg.api_key, size=cfg.removebg.size
+            downloader.to_removebg_bytes(downloaded),
+            cfg.removebg.api_key,
+            size=cfg.removebg.size,
         )
         cache.ensure()
         _atomic_write_bytes(png_bytes, cache.removed_png)
