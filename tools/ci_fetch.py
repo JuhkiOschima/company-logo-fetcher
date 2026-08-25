@@ -13,7 +13,7 @@ APIキーは環境変数(Actions の Secrets)から読む。値はログに出�
 環境変数:
   SERPAPI_KEY / REMOVEBG_KEY : 必須
   COMPANIES : 取得する企業名(smart_split で分解。空なら取得なしで再生成のみ)
-  RETRY     : 別の検索候補から取り直す企業名(1社)
+  RETRY     : 別の検索候補から取り直す企業名(複数可)
 """
 
 from __future__ import annotations
@@ -133,7 +133,10 @@ def main() -> int:
     companies = naming.smart_split(os.environ.get("COMPANIES", ""))
     companies = [n for n in companies if "\\" not in n and ".." not in n][:FETCH_LIMIT]
     # 改行・制御文字を除去(Actionsのログはコマンド解釈されるため、行頭偽装を防ぐ)
-    retry_name = " ".join(os.environ.get("RETRY", "").split())
+    # naming.smart_split は改行・読点等を区切りとして分解するため、
+    # 複数社をまとめて渡しても Actions ログへの行頭コマンド偽装は起きない
+    retry_names = naming.smart_split(os.environ.get("RETRY", ""))
+    retry_names = [n for n in retry_names if "\\" not in n and ".." not in n][:FETCH_LIMIT]
 
     # --- ストックからの削除(ビューワーの「ストックから削除」ボタン) ---
     delete_names = naming.smart_split(os.environ.get("DELETE", ""))
@@ -157,9 +160,9 @@ def main() -> int:
     fetched: set[str] = set()
     credit_stop = False
 
-    todo: list[tuple[str, bool]] = [(n, False) for n in companies]
-    if retry_name and "\\" not in retry_name and ".." not in retry_name:
-        todo.append((retry_name, True))
+    todo: list[tuple[str, bool]] = (
+        [(n, False) for n in companies] + [(n, True) for n in retry_names]
+    )
 
     for name, is_retry in todo:
         if credit_stop:

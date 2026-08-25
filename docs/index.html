@@ -104,6 +104,7 @@
   <section id="todaySection" style="display:none">
     <div class="row" style="justify-content: space-between; margin: 0 0 4px;">
       <h2 style="margin:0">今回の出力結果(<span id="todayCount">0</span>社)</h2>
+      <button id="todayRetry">まとめてやり直し</button>
       <button id="todayPptx" class="primary">PPTXに出力</button>
     </div>
     <div class="note" style="margin-bottom:10px">
@@ -117,6 +118,7 @@
     <div class="row" style="justify-content: space-between; margin: 0 0 4px;">
       <h2 style="margin:0">ストック(<span id="count">0</span>社)</h2>
       <span class="row" style="gap:6px">
+        <button id="stockRetry">まとめてやり直し</button>
         <button id="stockPptx" class="primary">PPTXに出力</button>
         <button id="stockDelete" class="danger">ストックから削除</button>
         <input id="searchBox" type="search" placeholder="🔍 企業名で絞り込み">
@@ -552,6 +554,17 @@ async function retryLogo(name) {
     `「${name}」を別の検索候補から取り直します。API枠を消費することがあります。よろしいですか?`);
 }
 
+async function retryBatch(selSet) {
+  const names = [...selSet];
+  if (!names.length) {
+    alert("やり直すロゴの「選択」にチェックを入れてください。");
+    return;
+  }
+  await runFetch({ retry: names.join("\n") },
+    `${names.join("、")}(${names.length}社)を別の検索候補から取り直します。\n`
+    + "API枠を消費することがあります。よろしいですか?");
+}
+
 // --- データ読み込み ---
 
 async function reloadData() {
@@ -583,7 +596,12 @@ async function init() {
     }
   } catch (e) { /* 設定なしでも閲覧は可能 */ }
   updateTokenState();
-  if (!repoApi) { $("fetchBtn").disabled = true; $("stockDelete").disabled = true; }
+  if (!repoApi) {
+    $("fetchBtn").disabled = true;
+    $("stockDelete").disabled = true;
+    $("stockRetry").disabled = true;
+    $("todayRetry").disabled = true;
+  }
   await reloadData();
 }
 
@@ -621,6 +639,14 @@ $("stockDelete").onclick = () => {
   }
   runFetch({ delete: names.join("\n") },
     `${names.join("、")}(${names.length}社)をストックから削除します。\n元に戻すには再取得が必要です。よろしいですか?`);
+};
+$("stockRetry").onclick = () => {
+  const names = logos.map((l) => l.name).filter((n) => selStock.has(n));
+  retryBatch(new Set(names));
+};
+$("todayRetry").onclick = () => {
+  const names = sessionNames().filter((n) => selToday.has(n));
+  retryBatch(new Set(names));
 };
 
 $("tokenSave").onclick = () => {

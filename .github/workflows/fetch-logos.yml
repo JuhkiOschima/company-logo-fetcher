@@ -8,7 +8,7 @@ on:
         required: false
         type: string
       retry:
-        description: 'やり直す企業名(1社。別の検索候補から取り直します)'
+        description: 'やり直す企業名(複数可。別の検索候補から取り直します)'
         required: false
         type: string
       delete:
