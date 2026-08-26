@@ -1,15 +1,33 @@
 {
- "at": "2026-08-26 06:47 UTC",
- "run_id": "32939660907",
+ "at": "2026-08-26 07:19 UTC",
+ "run_id": "32942091354",
  "results": [
   {
-   "name": "JR東日本",
+   "name": "Google",
    "ok": true,
-   "domain": "",
+   "domain": "sinmido.com",
+   "used_removebg": true,
+   "from_cache": false,
+   "error": "",
+   "deleted": false
+  },
+  {
+   "name": "Chrome",
+   "ok": true,
+   "domain": "k-tai.watch.impress.co.jp",
+   "used_removebg": true,
+   "from_cache": false,
+   "error": "",
+   "deleted": false
+  },
+  {
+   "name": "Gemini",
+   "ok": true,
+   "domain": "ja.wikipedia.org",
    "used_removebg": false,
    "from_cache": false,
    "error": "",
-   "deleted": true
+   "deleted": false
   }
  ]
 }
