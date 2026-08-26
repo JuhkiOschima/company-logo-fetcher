@@ -1,27 +1,9 @@
 {
- "at": "2026-08-26 05:57 UTC",
- "run_id": "32936109017",
+ "at": "2026-08-26 06:02 UTC",
+ "run_id": "32936410740",
  "results": [
   {
-   "name": "imode",
-   "ok": true,
-   "domain": "",
-   "used_removebg": false,
-   "from_cache": false,
-   "error": "",
-   "deleted": true
-  },
-  {
-   "name": "dゲーム",
-   "ok": true,
-   "domain": "",
-   "used_removebg": false,
-   "from_cache": false,
-   "error": "",
-   "deleted": true
-  },
-  {
-   "name": "dTV",
+   "name": "株式会社NTTドコモ",
    "ok": true,
    "domain": "",
    "used_removebg": false,
