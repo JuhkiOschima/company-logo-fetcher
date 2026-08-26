@@ -30,6 +30,12 @@
   "v": "748aa837"
  },
  {
+  "name": "Snowflake",
+  "domain": "ja.wikipedia.org",
+  "date": "2026-08-26",
+  "v": "600f107b"
+ },
+ {
   "name": "Salesforce",
   "domain": "ja.wikipedia.org",
   "date": "2026-08-26",
@@ -88,6 +94,12 @@
   "domain": "shuichirokoyamaworks.squarespace.com",
   "date": "2026-08-26",
   "v": "ca34b7ce"
+ },
+ {
+  "name": "Databric",
+  "domain": "ja.wikipedia.org",
+  "date": "2026-08-26",
+  "v": "dfff91fb"
  },
  {
   "name": "Chrome",

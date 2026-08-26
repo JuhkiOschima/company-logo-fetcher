@@ -1,0 +1,42 @@
+[
+  {
+    "url": "https://www.nttdata.com/jp/ja/-/media/nttdatajapan/images/lineup/snowflake/img01.png?h=348&iar=0&w=672&rev=fb69a292082b43b0b620f50687501219",
+    "title": "Snowflake | NTTデータ - NTT DATA",
+    "width": 672,
+    "height": 348,
+    "source": "NTT Data",
+    "page_url": "https://www.nttdata.com/jp/ja/lineup/snowflake/"
+  },
+  {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Snowflake_Logo.svg/1280px-Snowflake_Logo.svg.png?utm_source=ja.wikipedia.org&utm_campaign=index&utm_content=thumbnail",
+    "title": "ファイル:Snowflake Logo.svg - Wikipedia",
+    "width": 1280,
+    "height": 307,
+    "source": "Wikipedia",
+    "page_url": "https://ja.wikipedia.org/wiki/%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB:Snowflake_Logo.svg"
+  },
+  {
+    "url": "https://docs.snowflake.com/ja/_images/logo-snowflake-sans-text.png",
+    "title": "全プロセッサー (アルファベット順) | Snowflake Documentation",
+    "width": 400,
+    "height": 400,
+    "source": "Snowflake Documentation",
+    "page_url": "https://docs.snowflake.com/ja/user-guide/data-integration/openflow/processors/index"
+  },
+  {
+    "url": "https://www.snowflake.com/content/dam/snowflake-site/blog/2014/10/SnowflakeDifferenceScreenShot.png",
+    "title": "Snowflake」という名前の背景 | Snowflakeブログ",
+    "width": 470,
+    "height": 371,
+    "source": "Snowflake",
+    "page_url": "https://www.snowflake.com/ja/blog/behind-snowflakes-name/"
+  },
+  {
+    "url": "https://www.dentsudigital.co.jp/sites/default/files/service-detail/2025-12/snowflake.thumb_.800.480.png",
+    "title": "Snowflake | 電通デジタル",
+    "width": 1200,
+    "height": 675,
+    "source": "電通デジタル",
+    "page_url": "https://www.dentsudigital.co.jp/services/cloud-integration/snowflake"
+  }
+]

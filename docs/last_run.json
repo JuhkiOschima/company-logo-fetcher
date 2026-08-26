@@ -1,20 +1,20 @@
 {
- "at": "2026-08-26 16:19 UTC",
- "run_id": "32987737951",
+ "at": "2026-08-26 18:00 UTC",
+ "run_id": "32997277641",
  "results": [
   {
-   "name": "Instacart",
+   "name": "Snowflake",
    "ok": true,
-   "domain": "nvv.genai.co.jp",
-   "used_removebg": true,
+   "domain": "ja.wikipedia.org",
+   "used_removebg": false,
    "from_cache": false,
    "error": "",
    "deleted": false
   },
   {
-   "name": "Qwen",
+   "name": "Databric",
    "ok": true,
-   "domain": "lobehub.com",
+   "domain": "ja.wikipedia.org",
    "used_removebg": false,
    "from_cache": false,
    "error": "",
