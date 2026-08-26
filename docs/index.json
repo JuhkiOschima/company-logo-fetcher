@@ -1,5 +1,11 @@
 [
  {
+  "name": "楽天",
+  "domain": "corp.rakuten.co.jp",
+  "date": "2026-08-26",
+  "v": "f6e6de05"
+ },
+ {
   "name": "ドコモ光",
   "domain": "smartlifesupport.com",
   "date": "2026-08-26",
@@ -24,6 +30,48 @@
   "v": "748aa837"
  },
  {
+  "name": "Salesforce",
+  "domain": "ja.wikipedia.org",
+  "date": "2026-08-26",
+  "v": "9207ab1d"
+ },
+ {
+  "name": "Qwen",
+  "domain": "lobehub.com",
+  "date": "2026-08-26",
+  "v": "aee1390d"
+ },
+ {
+  "name": "OpenAI",
+  "domain": "openai.com",
+  "date": "2026-08-26",
+  "v": "f789d524"
+ },
+ {
+  "name": "Meta",
+  "domain": "find-model.jp",
+  "date": "2026-08-26",
+  "v": "1405613d"
+ },
+ {
+  "name": "LINE",
+  "domain": "linestep.jp",
+  "date": "2026-08-26",
+  "v": "63e8085f"
+ },
+ {
+  "name": "KFC",
+  "domain": "kfc.co.jp",
+  "date": "2026-08-26",
+  "v": "f3535e93"
+ },
+ {
+  "name": "Instacart",
+  "domain": "company.instacart.com",
+  "date": "2026-08-26",
+  "v": "4cc01ad4"
+ },
+ {
   "name": "Google",
   "domain": "gigazine.net",
   "date": "2026-08-26",
@@ -36,10 +84,22 @@
   "v": "74214a85"
  },
  {
+  "name": "Dprime",
+  "domain": "shuichirokoyamaworks.squarespace.com",
+  "date": "2026-08-26",
+  "v": "ca34b7ce"
+ },
+ {
   "name": "Chrome",
   "domain": "k-tai.watch.impress.co.jp",
   "date": "2026-08-26",
   "v": "364cc77c"
+ },
+ {
+  "name": "AWS",
+  "domain": "ja.wikipedia.org",
+  "date": "2026-08-26",
+  "v": "352c15ce"
  },
  {
   "name": "野村ホールディングス",

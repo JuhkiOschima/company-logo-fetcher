@@ -1,11 +1,92 @@
 {
- "at": "2026-08-26 07:20 UTC",
- "run_id": "32942248847",
+ "at": "2026-08-26 16:17 UTC",
+ "run_id": "32987412703",
  "results": [
   {
-   "name": "Google",
+   "name": "Salesforce",
    "ok": true,
-   "domain": "gigazine.net",
+   "domain": "ja.wikipedia.org",
+   "used_removebg": false,
+   "from_cache": false,
+   "error": "",
+   "deleted": false
+  },
+  {
+   "name": "AWS",
+   "ok": true,
+   "domain": "ja.wikipedia.org",
+   "used_removebg": false,
+   "from_cache": false,
+   "error": "",
+   "deleted": false
+  },
+  {
+   "name": "Meta",
+   "ok": true,
+   "domain": "find-model.jp",
+   "used_removebg": true,
+   "from_cache": false,
+   "error": "",
+   "deleted": false
+  },
+  {
+   "name": "LINE",
+   "ok": true,
+   "domain": "linestep.jp",
+   "used_removebg": false,
+   "from_cache": false,
+   "error": "",
+   "deleted": false
+  },
+  {
+   "name": "楽天",
+   "ok": true,
+   "domain": "corp.rakuten.co.jp",
+   "used_removebg": true,
+   "from_cache": false,
+   "error": "",
+   "deleted": false
+  },
+  {
+   "name": "OpenAI",
+   "ok": true,
+   "domain": "openai.com",
+   "used_removebg": true,
+   "from_cache": false,
+   "error": "",
+   "deleted": false
+  },
+  {
+   "name": "Instacart",
+   "ok": true,
+   "domain": "company.instacart.com",
+   "used_removebg": true,
+   "from_cache": false,
+   "error": "",
+   "deleted": false
+  },
+  {
+   "name": "Qwen",
+   "ok": true,
+   "domain": "lobehub.com",
+   "used_removebg": false,
+   "from_cache": false,
+   "error": "",
+   "deleted": false
+  },
+  {
+   "name": "KFC",
+   "ok": true,
+   "domain": "kfc.co.jp",
+   "used_removebg": true,
+   "from_cache": false,
+   "error": "",
+   "deleted": false
+  },
+  {
+   "name": "Dprime",
+   "ok": true,
+   "domain": "shuichirokoyamaworks.squarespace.com",
    "used_removebg": true,
    "from_cache": false,
    "error": "",
