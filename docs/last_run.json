@@ -1,87 +1,33 @@
 {
- "at": "2026-08-26 05:55 UTC",
- "run_id": "32935853986",
+ "at": "2026-08-26 05:57 UTC",
+ "run_id": "32936109017",
  "results": [
   {
-   "name": "株式会社NTTドコモ",
+   "name": "imode",
    "ok": true,
-   "domain": "docomo.ne.jp",
-   "used_removebg": true,
-   "from_cache": false,
-   "error": "",
-   "deleted": false
-  },
-  {
-   "name": "dポイント",
-   "ok": true,
-   "domain": "atgift.jp",
-   "used_removebg": false,
-   "from_cache": true,
-   "error": "",
-   "deleted": false
-  },
-  {
-   "name": "d払い",
-   "ok": true,
-   "domain": "univapay.com",
+   "domain": "",
    "used_removebg": false,
    "from_cache": false,
    "error": "",
-   "deleted": false
-  },
-  {
-   "name": "dTV",
-   "ok": true,
-   "domain": "webcircle.co.jp",
-   "used_removebg": true,
-   "from_cache": false,
-   "error": "",
-   "deleted": false
-  },
-  {
-   "name": "dマガジン",
-   "ok": true,
-   "domain": "dmagazine.docomo.ne.jp",
-   "used_removebg": true,
-   "from_cache": false,
-   "error": "",
-   "deleted": false
+   "deleted": true
   },
   {
    "name": "dゲーム",
    "ok": true,
-   "domain": "x.com",
+   "domain": "",
    "used_removebg": false,
    "from_cache": false,
    "error": "",
-   "deleted": false
+   "deleted": true
   },
   {
-   "name": "ドコモ光",
+   "name": "dTV",
    "ok": true,
-   "domain": "smartlifesupport.com",
-   "used_removebg": true,
+   "domain": "",
+   "used_removebg": false,
    "from_cache": false,
    "error": "",
-   "deleted": false
-  },
-  {
-   "name": "ahamo",
-   "ok": true,
-   "domain": "ahamo.com",
-   "used_removebg": true,
-   "from_cache": false,
-   "error": "",
-   "deleted": false
-  },
-  {
-   "name": "imode",
-   "ok": true,
-   "domain": "newspicks.com",
-   "used_removebg": true,
-   "from_cache": false,
-   "error": "",
-   "deleted": false
+   "deleted": true
   }
  ]
 }
