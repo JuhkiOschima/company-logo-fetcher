@@ -1,21 +1,21 @@
 {
- "at": "2026-08-26 18:00 UTC",
- "run_id": "32997277641",
+ "at": "2026-08-26 18:10 UTC",
+ "run_id": "32998211988",
  "results": [
   {
-   "name": "Snowflake",
+   "name": "Softbank",
    "ok": true,
-   "domain": "ja.wikipedia.org",
-   "used_removebg": false,
+   "domain": "group.softbank",
+   "used_removebg": true,
    "from_cache": false,
    "error": "",
    "deleted": false
   },
   {
-   "name": "Databric",
+   "name": "LayerX",
    "ok": true,
-   "domain": "ja.wikipedia.org",
-   "used_removebg": false,
+   "domain": "layerx.co.jp",
+   "used_removebg": true,
    "from_cache": false,
    "error": "",
    "deleted": false

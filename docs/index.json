@@ -30,6 +30,12 @@
   "v": "748aa837"
  },
  {
+  "name": "Softbank",
+  "domain": "group.softbank",
+  "date": "2026-08-26",
+  "v": "77bb1cb4"
+ },
+ {
   "name": "Snowflake",
   "domain": "ja.wikipedia.org",
   "date": "2026-08-26",
@@ -58,6 +64,12 @@
   "domain": "find-model.jp",
   "date": "2026-08-26",
   "v": "1405613d"
+ },
+ {
+  "name": "LayerX",
+  "domain": "layerx.co.jp",
+  "date": "2026-08-26",
+  "v": "bc1640b2"
  },
  {
   "name": "LINE",

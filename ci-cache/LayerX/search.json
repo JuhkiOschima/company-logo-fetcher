@@ -1,0 +1,42 @@
+[
+  {
+    "url": "https://layerx.co.jp/wp-content/uploads/2023/10/ogp.png",
+    "title": "プレスキット / 株式会社LayerX",
+    "width": 1200,
+    "height": 630,
+    "source": "LayerX",
+    "page_url": "https://layerx.co.jp/presskit/"
+  },
+  {
+    "url": "https://layerx.co.jp/wp-content/uploads/2023/10/cropped-Icon_Square.png",
+    "title": "プレスキット / 株式会社LayerX",
+    "width": 512,
+    "height": 512,
+    "source": "LayerX",
+    "page_url": "https://layerx.co.jp/presskit/"
+  },
+  {
+    "url": "https://s3-ap-northeast-1.amazonaws.com/poc-image/production/ac29a2816c9a4d7beeca3f162478678778fd6bd7dd563f170b5e57c323cf.png",
+    "title": "LayerX",
+    "width": 400,
+    "height": 400,
+    "source": "LayerX",
+    "page_url": "https://note.layerx.co.jp/"
+  },
+  {
+    "url": "https://image.www.ipros.com/public/company/image/c96/2095305/IPROS01394075893437247346.png?w=280&h=280",
+    "title": "LayerX | 企業情報 | イプロス",
+    "width": 280,
+    "height": 280,
+    "source": "イプロス",
+    "page_url": "https://www.ipros.com/company/detail/2095305/"
+  },
+  {
+    "url": "https://prtimes.jp/data/corp/36528/ogp/9dedbb01c4b7e3ff3fd689744e3dd801-3864d74314886b8f41e5e1f049b57e2c.png",
+    "title": "LayerXのプレスリリース｜PR TIMES",
+    "width": 761,
+    "height": 400,
+    "source": "PR TIMES",
+    "page_url": "https://prtimes.jp/main/html/searchrlp/company_id/36528"
+  }
+]
