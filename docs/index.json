@@ -1,5 +1,53 @@
 [
  {
+  "name": "東京海上日動",
+  "domain": "tokiomarinehd.com",
+  "date": "2026-09-02",
+  "v": "2b81b16f"
+ },
+ {
+  "name": "三井不動産",
+  "domain": "ja.wikipedia.org",
+  "date": "2026-09-02",
+  "v": "ca06cdb9"
+ },
+ {
+  "name": "リクルート",
+  "domain": "part-tanjikan.mhlw.go.jp",
+  "date": "2026-09-02",
+  "v": "6e73a6c2"
+ },
+ {
+  "name": "ゆうちょ銀行",
+  "domain": "jp-bank.japanpost.jp",
+  "date": "2026-09-02",
+  "v": "72561f5d"
+ },
+ {
+  "name": "PPIH",
+  "domain": "prtimes.jp",
+  "date": "2026-09-02",
+  "v": "363d2862"
+ },
+ {
+  "name": "KIRIN",
+  "domain": "kirin.co.jp",
+  "date": "2026-09-02",
+  "v": "f3fb13d5"
+ },
+ {
+  "name": "JR東海",
+  "domain": "commons.wikimedia.org",
+  "date": "2026-09-02",
+  "v": "3be2d794"
+ },
+ {
+  "name": "JAL",
+  "domain": "unicla-writing.com",
+  "date": "2026-09-02",
+  "v": "2f32a4b5"
+ },
+ {
   "name": "楽天",
   "domain": "corp.rakuten.co.jp",
   "date": "2026-08-26",
