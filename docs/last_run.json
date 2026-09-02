@@ -1,14 +1,14 @@
 {
- "at": "2026-09-02 11:17 UTC",
- "run_id": "33623747491",
+ "at": "2026-09-02 13:20 UTC",
+ "run_id": "33635083208",
  "results": [
   {
-   "name": "ビックカメラ",
-   "ok": false,
-   "domain": "",
-   "used_removebg": false,
+   "name": "ゆうちょ銀行",
+   "ok": true,
+   "domain": "sic-sumida.net",
+   "used_removebg": true,
    "from_cache": false,
-   "error": "候補をすべて取得できませんでした。creist.co.jp: 取得に失敗 (HTTP 403) / news.shoninsha.co.jp: 取得に失敗 (HTTP 403) / biccamera.co.jp: 取得に失敗: HTTPSConnectionPool(host='www.biccamera.co.jp', port=443): Read timed out. (read timeout=20)",
+   "error": "",
    "deleted": false
   }
  ]
