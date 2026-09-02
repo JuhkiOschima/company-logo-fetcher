@@ -1,23 +1,14 @@
 {
- "at": "2026-09-02 10:53 UTC",
- "run_id": "33621745214",
+ "at": "2026-09-02 11:14 UTC",
+ "run_id": "33623483545",
  "results": [
   {
-   "name": "ゆうちょ銀行",
-   "ok": true,
-   "domain": "hc-excellence.jp",
+   "name": "ビックカメラ",
+   "ok": false,
+   "domain": "",
    "used_removebg": false,
    "from_cache": false,
-   "error": "",
-   "deleted": false
-  },
-  {
-   "name": "KIRIN",
-   "ok": true,
-   "domain": "forevista.com",
-   "used_removebg": false,
-   "from_cache": false,
-   "error": "",
+   "error": "候補をすべて取得できませんでした。creist.co.jp: 取得に失敗 (HTTP 403) / news.shoninsha.co.jp: 取得に失敗 (HTTP 403) / biccamera.co.jp: 取得に失敗: HTTPSConnectionPool(host='www.biccamera.co.jp', port=443): Read timed out. (read timeout=20)",
    "deleted": false
   }
  ]
